@@ -6,8 +6,6 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import { tokens } from '../../theme';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
-import ContactsOutlinedIcon from '@mui/icons-material/ContactsOutlined';
-import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
@@ -138,12 +136,12 @@ const Sidebar = () => {
             }}
           >
             <Typography variant="body2" color={colors.grey[300]} align="center">
-              Sero Education
+              Nguyen Chi Huan
             </Typography>
           </Box>
 
           <Typography variant="body2" color={colors.grey[300]} align="center">
-            seroeducation@gmail.com
+            nchuan03@gmail.com
           </Typography>
         </Box>
       </ProSidebar>

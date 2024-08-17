@@ -1,20 +1,14 @@
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
-import { useContext } from 'react';
-import { ColorModeContext, tokens } from '../../theme';
+import { tokens } from '../../theme';
 import InputBase from '@mui/material/InputBase';
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-
 import SearchIcon from '@mui/icons-material/Search';
-
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 
 const Topbar = () => {
   const theme = useTheme(); // Lấy theme hiện tại
   const colors = tokens(theme.palette.mode); // Lấy màu sắc dựa trên mode hiện tại (sáng hoặc tối)
-  const colorMode = useContext(ColorModeContext); // Lấy context để thay đổi mode
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -25,7 +19,7 @@ const Topbar = () => {
           fontWeight="bold"
           mr={2}
         >
-          Sero
+          IOT
         </Typography>
         {/* SEARCH BAR */}
         <Box
@@ -43,17 +37,6 @@ const Topbar = () => {
 
       {/* ICONS */}
       <Box display="flex">
-        {/* Nút chuyển đổi chế độ sáng/tối */}
-        <Tippy content="Theme">
-          <IconButton onClick={colorMode.toggleColorMode}>
-            {theme.palette.mode === 'dark' ? ( // Kiểm tra chế độ hiện tại
-              <DarkModeOutlinedIcon /> // Biểu tượng cho chế độ tối
-            ) : (
-              <LightModeOutlinedIcon /> // Biểu tượng cho chế độ sáng
-            )}
-          </IconButton>
-        </Tippy>
-        {/*// Biểu tượng thông báo */}
         <Tippy content="Notification">
           <IconButton>
             <NotificationsOutlinedIcon />
