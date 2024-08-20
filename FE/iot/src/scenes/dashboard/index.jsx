@@ -31,11 +31,13 @@ const Dashboard = () => {
         {/* ROW 1 */}
         <Box
           gridColumn="span 4"
-          backgroundColor={colors.primary[400]}
-          // background="linear-gradient(purple, pink)"
           display="flex"
           alignItems="center"
           justifyContent="center"
+          sx={{
+            backgroundImage:
+              'linear-gradient(to left bottom, #9D0208, #FFFF3F)',
+          }}
         >
           <StatBox
             title="12,361"
@@ -55,6 +57,10 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
+          sx={{
+            backgroundImage:
+              'linear-gradient(to left bottom, #1c92d2, #f2fcfe)',
+          }}
         >
           <StatBox
             title="431,225"
@@ -74,6 +80,10 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
+          sx={{
+            backgroundImage:
+              'linear-gradient(to left bottom, #fffc00, #ffffff)',
+          }}
         >
           <StatBox
             title="32,441"

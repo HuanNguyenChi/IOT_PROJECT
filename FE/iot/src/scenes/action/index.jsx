@@ -1,10 +1,9 @@
 import { Box, Typography, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { tokens } from '../../theme';
-import { mockDataTeam } from '../../data/mockData';
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
+import { mockDataHistoryDevice } from '../../data/mockData';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Header from '../../components/Header';
 
 const Action = () => {
@@ -26,28 +25,7 @@ const Action = () => {
       flex: 1,
       headerAlign: 'center',
       align: 'center',
-    },
-    {
-      field: 'time',
-      headerName: 'Time',
-      flex: 1,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    // {
-    //   field: 'user',
-    //   headerName: 'User',
-    //   flex: 1,
-    //   headerAlign: 'center',
-    //   align: 'center',
-    // },
-    {
-      field: 'accessLevel',
-      headerName: 'Access Level',
-      headerAlign: 'center',
-      align: 'center',
-      flex: 1,
-      renderCell: ({ row: { access } }) => {
+      renderCell: ({ row: { status } }) => {
         return (
           <Box
             width="60%"
@@ -56,19 +34,57 @@ const Action = () => {
             display="flex"
             justifyContent="center"
             backgroundColor={
-              access === 'admin'
+              status === '1'
                 ? colors.greenAccent[600]
-                : access === 'manager'
-                ? colors.greenAccent[700]
-                : colors.greenAccent[700]
+                : status === '0'
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
             }
             borderRadius="4px"
           >
-            {access === 'admin' && <AdminPanelSettingsOutlinedIcon />}
-            {access === 'manager' && <SecurityOutlinedIcon />}
-            {access === 'user' && <LockOpenOutlinedIcon />}
+            {status === '0' && <LockOutlinedIcon />}
+            {status === '1' && <LockOpenOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
-              {access}
+              {status === '1' ? 'ON' : 'OFF'}
+            </Typography>
+          </Box>
+        );
+      },
+    },
+    {
+      field: 'time',
+      headerName: 'Time',
+      flex: 1,
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
+      headerAlign: 'center',
+      align: 'center',
+      flex: 1,
+      renderCell: ({ row: { action } }) => {
+        return (
+          <Box
+            width="60%"
+            m="0 auto"
+            p="5px"
+            display="flex"
+            justifyContent="center"
+            backgroundColor={
+              action === '1'
+                ? colors.greenAccent[600]
+                : action === '0'
+                ? colors.redAccent[700]
+                : colors.redAccent[700]
+            }
+            borderRadius="4px"
+          >
+            {action === '0' && <LockOutlinedIcon />}
+            {action === '1' && <LockOpenOutlinedIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
+              {action === '1' ? 'ON' : 'OFF'}
             </Typography>
           </Box>
         );
@@ -78,16 +94,18 @@ const Action = () => {
 
   return (
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the Team Members" />
+      <Header title="DEVICE" subtitle="Managing the data history of device" />
       <Box
         m="40px 0 0 0"
-        height="75vh"
+        height="77vh"
         sx={{
           '& .MuiDataGrid-root': {
             border: 'none',
+            fontSize: '0.9rem',
           },
           '& .MuiDataGrid-cell': {
             borderBottom: 'none',
+            fontSize: '0.9rem',
           },
           '& .name-column--cell': {
             color: colors.greenAccent[300],
@@ -95,6 +113,7 @@ const Action = () => {
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: colors.blueAccent[700],
             borderBottom: 'none',
+            fontSize: '0.9rem',
           },
           '& .MuiDataGrid-virtualScroller': {
             backgroundColor: colors.primary[400],
@@ -108,7 +127,7 @@ const Action = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={mockDataTeam} columns={columns} />
+        <DataGrid rows={mockDataHistoryDevice} columns={columns} />
       </Box>
     </Box>
   );

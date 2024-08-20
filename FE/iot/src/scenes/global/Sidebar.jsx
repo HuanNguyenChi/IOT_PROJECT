@@ -39,6 +39,13 @@ const Sidebar = () => {
       sx={{
         '& .pro-sidebar-inner': {
           background: `${colors.primary[400]} !important`,
+          height: '100vh',
+          position: 'fixed', // Giữ sidebar cố định
+          top: 0,
+          left: 0,
+          zIndex: 1000,
+          width: isCollapsed ? '80px' : '250px',
+          transition: 'width 0.3s ease-in-out',
         },
         '& .pro-icon-wrapper': {
           backgroundColor: 'transparent !important',
@@ -88,14 +95,16 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+            {/* {!isCollapsed && ( */}
+              <Typography
+                variant="h6"
+                color={colors.grey[300]}
+                sx={{ m: '15px 0 5px 20px' }}
+              >
+                Data
+              </Typography>
+            {/* )} */}
 
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: '15px 0 5px 20px' }}
-            >
-              Data
-            </Typography>
             <Item
               title="Data Sensor"
               to="/datasensor"
@@ -119,6 +128,7 @@ const Sidebar = () => {
             />
           </Box>
         </Menu>
+
         {/* Footer */}
         <Box
           sx={{
@@ -136,12 +146,12 @@ const Sidebar = () => {
             }}
           >
             <Typography variant="body2" color={colors.grey[300]} align="center">
-              Nguyen Chi Huan
+              {!isCollapsed && 'Nguyen Chi Huan'}
             </Typography>
           </Box>
 
           <Typography variant="body2" color={colors.grey[300]} align="center">
-            nchuan03@gmail.com
+            {!isCollapsed && 'nchuan03@gmail.com'}
           </Typography>
         </Box>
       </ProSidebar>

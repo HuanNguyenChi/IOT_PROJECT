@@ -1,10 +1,7 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { tokens } from '../../theme';
-import { mockDataTeam } from '../../data/mockData';
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
+import { mockDataSensors } from '../../data/mockData';
 import Header from '../../components/Header';
 
 const DataSensors = () => {
@@ -33,6 +30,7 @@ const DataSensors = () => {
       field: 'light',
       headerName: 'Light',
       flex: 1,
+      type: 'number',
       headerAlign: 'center',
       align: 'center',
     },
@@ -43,53 +41,22 @@ const DataSensors = () => {
       headerAlign: 'center',
       align: 'center',
     },
-    {
-      field: 'accessLevel',
-      headerName: 'Access Level',
-      headerAlign: 'center',
-      align: 'center',
-      flex: 1,
-      renderCell: ({ row: { access } }) => {
-        return (
-          <Box
-            width="60%"
-            m="0 auto"
-            p="5px"
-            display="flex"
-            justifyContent="center"
-            backgroundColor={
-              access === 'admin'
-                ? colors.greenAccent[600]
-                : access === 'manager'
-                ? colors.greenAccent[700]
-                : colors.greenAccent[700]
-            }
-            borderRadius="4px"
-          >
-            {access === 'admin' && <AdminPanelSettingsOutlinedIcon />}
-            {access === 'manager' && <SecurityOutlinedIcon />}
-            {access === 'user' && <LockOpenOutlinedIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
-              {access}
-            </Typography>
-          </Box>
-        );
-      },
-    },
   ];
 
   return (
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the Team Members" />
+      <Header title="DATA SENSORS" subtitle="Managing the data sensors" />
       <Box
         m="40px 0 0 0"
-        height="75vh"
+        height="77vh"
         sx={{
           '& .MuiDataGrid-root': {
             border: 'none',
+            fontSize: '0.9rem',
           },
           '& .MuiDataGrid-cell': {
             borderBottom: 'none',
+            fontSize: '0.9rem',
           },
           '& .name-column--cell': {
             color: colors.greenAccent[300],
@@ -97,6 +64,7 @@ const DataSensors = () => {
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: colors.blueAccent[700],
             borderBottom: 'none',
+            fontSize: '0.9rem',
           },
           '& .MuiDataGrid-virtualScroller': {
             backgroundColor: colors.primary[400],
@@ -110,7 +78,7 @@ const DataSensors = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={mockDataTeam} columns={columns} />
+        <DataGrid rows={mockDataSensors} columns={columns} />
       </Box>
     </Box>
   );
