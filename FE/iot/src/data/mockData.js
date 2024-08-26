@@ -131,54 +131,54 @@ export const mockDataHistoryDevice = [
   },
 ];
 
-export const mockTransactions = [
+export const device = [
   {
     txId: '01e4dsa',
-    user: 'johndoe',
-    date: '2021-09-01',
-    cost: '43.95',
+    name: 'Led A',
+    type: 'Led',
+    status: '0',
   },
   {
     txId: '0315dsaa',
-    user: 'jackdower',
-    date: '2022-04-01',
-    cost: '133.45',
+    name: 'Led B',
+    type: 'Led',
+    status: '0',
   },
   {
     txId: '01e4dsa',
-    user: 'aberdohnny',
-    date: '2021-09-01',
-    cost: '43.95',
+    name: 'Led C',
+    type: 'Led',
+    status: '1',
   },
   {
     txId: '51034szv',
-    user: 'goodmanave',
-    date: '2022-11-05',
-    cost: '200.95',
+    name: 'Led D',
+    type: 'Led',
+    status: '0',
   },
   {
     txId: '0a123sb',
-    user: 'stevebower',
-    date: '2022-11-02',
-    cost: '13.55',
+    name: 'Fan A',
+    type: 'Fan',
+    status: '1',
   },
   {
     txId: '01e4dsa',
-    user: 'aberdohnny',
-    date: '2021-09-01',
-    cost: '43.95',
+    name: 'Fan B',
+    type: 'Fan',
+    status: '0',
   },
   {
     txId: '120s51a',
-    user: 'wootzifer',
-    date: '2019-04-15',
-    cost: '24.20',
+    name: 'Fan C',
+    type: 'Fan',
+    status: '1',
   },
   {
     txId: '0315dsaa',
-    user: 'jackdower',
-    date: '2022-04-01',
-    cost: '133.45',
+    name: 'Fan D',
+    type: 'Fan',
+    status: '0',
   },
 ];
 
@@ -188,51 +188,51 @@ export const mockLineData = [
     color: tokens('dark').greenAccent[500],
     data: [
       {
-        x: 'plane',
+        x: 1,
         y: 101,
       },
       {
-        x: 'helicopter',
+        x: 2,
         y: 75,
       },
       {
-        x: 'boat',
+        x: 3,
         y: 36,
       },
       {
-        x: 'train',
+        x: 4,
         y: 216,
       },
       {
-        x: 'subway',
+        x: 5,
         y: 35,
       },
       {
-        x: 'bus',
+        x: 6,
         y: 236,
       },
       {
-        x: 'car',
+        x: 7,
         y: 88,
       },
       {
-        x: 'moto',
+        x: 8,
         y: 232,
       },
       {
-        x: 'bicycle',
+        x: 9,
         y: 281,
       },
       {
-        x: 'horse',
+        x: 10,
         y: 1,
       },
       {
-        x: 'skateboard',
+        x: 11,
         y: 35,
       },
       {
-        x: 'others',
+        x: 12,
         y: 14,
       },
     ],
@@ -242,51 +242,51 @@ export const mockLineData = [
     color: tokens('dark').blueAccent[300],
     data: [
       {
-        x: 'plane',
+        x: 1,
         y: 212,
       },
       {
-        x: 'helicopter',
+        x: 2,
         y: 190,
       },
       {
-        x: 'boat',
+        x: 3,
         y: 270,
       },
       {
-        x: 'train',
+        x: 4,
         y: 9,
       },
       {
-        x: 'subway',
+        x: 5,
         y: 75,
       },
       {
-        x: 'bus',
+        x: 6,
         y: 175,
       },
       {
-        x: 'car',
+        x: 7,
         y: 33,
       },
       {
-        x: 'moto',
+        x: 8,
         y: 189,
       },
       {
-        x: 'bicycle',
+        x: 9,
         y: 97,
       },
       {
-        x: 'horse',
+        x: 10,
         y: 87,
       },
       {
-        x: 'skateboard',
+        x: 11,
         y: 299,
       },
       {
-        x: 'others',
+        x: 12,
         y: 251,
       },
     ],
@@ -296,55 +296,53 @@ export const mockLineData = [
     color: tokens('dark').redAccent[200],
     data: [
       {
-        x: 'plane',
+        x: 1,
         y: 191,
       },
       {
-        x: 'helicopter',
+        x: 2,
         y: 136,
       },
       {
-        x: 'boat',
+        x: 3,
         y: 91,
       },
       {
-        x: 'train',
+        x: 4,
         y: 190,
       },
       {
-        x: 'subway',
+        x: 5,
         y: 211,
       },
       {
-        x: 'bus',
+        x: 6,
         y: 152,
       },
       {
-        x: 'car',
+        x: 7,
         y: 189,
       },
       {
-        x: 'moto',
+        x: 8,
         y: 152,
       },
       {
-        x: 'bicycle',
+        x: 9,
         y: 8,
       },
       {
-        x: 'horse',
+        x: 10,
         y: 197,
       },
       {
-        x: 'skateboard',
+        x: 11,
         y: 107,
       },
       {
-        x: 'others',
+        x: 12,
         y: 170,
       },
     ],
   },
 ];
-
-

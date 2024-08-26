@@ -4,7 +4,12 @@ import com.huannguyen.BE.model.DataSensor;
 import com.huannguyen.BE.repository.DataSensorRepository;
 import com.huannguyen.BE.service.DataSensorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class DataSensorServiceImpl implements DataSensorService {
@@ -12,22 +17,23 @@ public class DataSensorServiceImpl implements DataSensorService {
     private DataSensorRepository dataSensorRepository;
 
     @Override
-    public DataSensor findDataSensorByID(int id) {
-        return dataSensorRepository.findById(id).get();
+    public List<DataSensor> findByTimeBetween(String start, String end,Pageable pageable) {
+        return dataSensorRepository.findByTimeBetween(start, end,pageable);
     }
 
     @Override
-    public DataSensor saveDataSensor(DataSensor dataSensor) {
-        return dataSensorRepository.save(dataSensor);
+    public List<DataSensor> findDataSensorByTimeBetweenOrderByTemperature(String start, String end, Pageable pageable) {
+        return dataSensorRepository.findDataSensorByTimeBetweenOrderByTemperature(start, end,pageable);
     }
 
     @Override
-    public DataSensor updateDataSensor(DataSensor dataSensor) {
-        return dataSensorRepository.save(dataSensor);
+    public List<DataSensor> findDataSensorByTimeBetweenOrderByHumidity(String start, String end, Pageable pageable) {
+        return dataSensorRepository.findDataSensorByTimeBetweenOrderByHumidity(start, end,pageable);
     }
 
     @Override
-    public void deleteDataSensor(int id) {
-        dataSensorRepository.deleteById(id);
+    public List<DataSensor> findDataSensorByTimeBetweenOrderByLight(String start, String end, Pageable pageable) {
+        return dataSensorRepository.findDataSensorByTimeBetweenOrderByLight(start, end,pageable);
     }
+
 }

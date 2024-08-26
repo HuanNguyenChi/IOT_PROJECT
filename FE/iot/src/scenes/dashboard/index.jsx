@@ -1,8 +1,12 @@
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import { Box, IconButton, Typography, useTheme, Button } from '@mui/material';
 import { tokens } from '../../theme';
-import { mockTransactions } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { device } from '../../data/mockData';
+import axios from 'axios';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import DeviceThermostatOutlinedIcon from '@mui/icons-material/DeviceThermostatOutlined';
+import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import InvertColorsIcon from '@mui/icons-material/InvertColors';
 import LightModeIcon from '@mui/icons-material/LightMode';
 
@@ -13,6 +17,62 @@ import LineChart from '../../components/LineChart';
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleString());
+  const [dataSensors, setDataSensors] = useState([]); // State to store API data
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+
+  useEffect(() => {
+    // Fetch data from API
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8086/api/'); // Adjust the URL if needed
+        setDataSensors(response.data);
+        console.log(response);
+        setLoading(false);
+      } catch (error) {
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  const chartData = [
+    {
+      id: 'temperature',
+      // color: 'hsl(207, 70%, 50%)',
+      data: dataSensors.map((sensor) => ({
+        x: sensor.time,
+        y: sensor.temperature,
+      })),
+    },
+    {
+      id: 'humidity',
+      // color: 'hsl(120, 70%, 50%)',
+      data: dataSensors.map((sensor) => ({
+        x: sensor.time,
+        y: sensor.humidity,
+      })),
+    },
+    {
+      id: 'light',
+      data: dataSensors.map((sensor) => ({
+        x: sensor.time,
+        y: sensor.light,
+      })),
+    },
+  ];
 
   return (
     <Box m="20px">
@@ -40,10 +100,8 @@ const Dashboard = () => {
           }}
         >
           <StatBox
-            title="12,361"
+            title={dataSensors[0].temperature + 'C' || 'N/A'}
             subtitle="Temperature"
-            progress="0.75"
-            increase="+14%"
             icon={
               <DeviceThermostatOutlinedIcon
                 sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
@@ -63,10 +121,8 @@ const Dashboard = () => {
           }}
         >
           <StatBox
-            title="431,225"
+            title={dataSensors[0].humidity + '%' || 'N/A'}
             subtitle="Humidity"
-            progress="0.50"
-            increase="+21%"
             icon={
               <InvertColorsIcon
                 sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
@@ -86,10 +142,8 @@ const Dashboard = () => {
           }}
         >
           <StatBox
-            title="32,441"
+            title={dataSensors[0].light + 'Lux' || 'N/A'}
             subtitle="Light"
-            progress="0.30"
-            increase="+5%"
             icon={
               <LightModeIcon
                 sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
@@ -117,14 +171,14 @@ const Dashboard = () => {
                 fontWeight="600"
                 color={colors.grey[100]}
               >
-                Revenue Generated
+                Today
               </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
+                {currentTime}
               </Typography>
             </Box>
             <Box>
@@ -136,9 +190,10 @@ const Dashboard = () => {
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
+            <LineChart  data={chartData} />
           </Box>
         </Box>
+
         <Box
           gridColumn="span 4"
           backgroundColor={colors.primary[400]}
@@ -154,12 +209,12 @@ const Dashboard = () => {
             p="15px"
           >
             <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Recent Transactions
+              Device
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {device.map((device, i) => (
             <Box
-              key={`${transaction.txId}-${i}`}
+              key={`${device.txId}-${i}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -172,20 +227,40 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {transaction.txId}
-                </Typography>
-                <Typography color={colors.grey[100]}>
-                  {transaction.user}
+                  {device.name}
                 </Typography>
               </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
-              <Box
-                backgroundColor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
+              <Box color={colors.grey[100]}>{device.type}</Box>
+              <Button
+                sx={{
+                  backgroundColor:
+                    device.status === '1'
+                      ? colors.greenAccent[600]
+                      : colors.redAccent[600],
+                  padding: '5px 10px',
+                  borderRadius: '50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  minWidth: '80px',
+                  minHeight: '30px',
+                  color: 'white', // Ensure the text/icon color contrasts with the background
+                  '&:hover': {
+                    backgroundColor:
+                      device.status === '1'
+                        ? colors.greenAccent[500]
+                        : colors.redAccent[500],
+                  },
+                }}
               >
-                ${transaction.cost}
-              </Box>
+                {device.status === '0' ? (
+                  <LockOutlinedIcon />
+                ) : (
+                  <LockOpenOutlinedIcon />
+                )}
+                {device.status === '1' ? 'ON' : 'OFF'}
+              </Button>
             </Box>
           ))}
         </Box>

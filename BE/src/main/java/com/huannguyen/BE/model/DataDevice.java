@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table
+@Table(name = "data_device")
 @AllArgsConstructor
 @NoArgsConstructor
 public class DataDevice {
@@ -17,13 +17,14 @@ public class DataDevice {
     @Column(name = "ID")
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "DEVICE")
-    private Device device;
-
     @Column(name = "TIME")
-    private  String time;
+    private String time;
 
     @Column(name = "ACTION")
     private Boolean action;
+
+    @ManyToOne()
+    @JoinColumn(name = "DEVICE")
+    private Device device;
+
 }

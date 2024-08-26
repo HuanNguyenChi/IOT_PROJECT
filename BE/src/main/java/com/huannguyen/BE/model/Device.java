@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table
+@Table(name = "device")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Device {
@@ -27,6 +27,7 @@ public class Device {
     @Column(name = "STATUS")
     private Boolean status;
 
-    @OneToMany(mappedBy = "device")
-    private List<Device> listActionDevice;
+//
+//    @OneToMany(mappedBy = "device")
+//    private List<DataDevice> listActionDevice;
 }

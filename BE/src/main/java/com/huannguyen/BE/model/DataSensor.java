@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 @Entity
-@Table
+@Table(name = "data_sensor")
 @AllArgsConstructor
 @NoArgsConstructor
 public class DataSensor {
@@ -19,16 +20,16 @@ public class DataSensor {
     private Integer id;
 
     @Column(name = "HUMIDITY")
-    private Integer humidity;
+    private Double humidity;
 
     @Column(name = "TEMPERATURE")
     private Double temperature;
 
     @Column(name = "LIGHT")
-    private Integer light;
+    private Double light;
 
     @Column(name = "TIME")
-    private Date time;
+    private String time;
 
     @ManyToOne
     @JoinColumn(name = "ID_SENSOR")

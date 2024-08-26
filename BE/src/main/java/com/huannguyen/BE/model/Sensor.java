@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table
+@Table(name = "sensor")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Sensor {
