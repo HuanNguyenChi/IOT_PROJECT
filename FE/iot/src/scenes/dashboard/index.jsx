@@ -1,42 +1,48 @@
-import { Box, IconButton, Typography, useTheme, Button } from '@mui/material';
-import { tokens } from '../../theme';
-import { useState, useEffect } from 'react';
-import { device } from '../../data/mockData';
-import axios from 'axios';
-import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import DeviceThermostatOutlinedIcon from '@mui/icons-material/DeviceThermostatOutlined';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import InvertColorsIcon from '@mui/icons-material/InvertColors';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Box, Button, Typography, useTheme } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { tokens } from '../../theme';
 
 import Header from '../../components/Header';
-import StatBox from '../../components/StatBox';
 import LineChart from '../../components/LineChart';
+import StatBox from '../../components/StatBox';
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleString());
-  const [dataSensors, setDataSensors] = useState([]); // State to store API data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [dataSensors, setDataSensors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [devices, setDevices] = useState([]);
 
   useEffect(() => {
-    // Fetch data from API
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8086/api/'); // Adjust the URL if needed
+        const response = await axios.get('http://localhost:8086/api/');
         setDataSensors(response.data);
-        console.log(response);
         setLoading(false);
       } catch (error) {
         setError(error);
         setLoading(false);
       }
     };
+    const fetchDevices = async () => {
+      try {
+        const response = await axios.get('http://localhost:8086/api/alldevice');
+        setDevices(response.data);
+      } catch (error) {
+        setError(error);
+      }
+    };
 
     fetchData();
+    fetchDevices();
 
     const interval = setInterval(() => {
       fetchData();
@@ -44,33 +50,56 @@ const Dashboard = () => {
 
     return () => clearInterval(interval);
   }, []);
-
+  const handleToggle = async (device) => {
+    try {
+      // Gửi yêu cầu HTTP tới API với trạng thái mới và ID của thiết bị
+      alert('Sending...');
+      const response = await axios.get(`http://localhost:8086/api/led`, {
+        params: {
+          state: device.status === true ? 'true' : 'false',
+          id: device.id,
+        },
+      });
+      const dataDevice = response.data;
+      setDevices((prevDevices) =>
+        prevDevices.map((d) =>
+          d.id === dataDevice.device.id ? { ...d, status: dataDevice.action } : d
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling device status:', error);
+    }
+  };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   const chartData = [
     {
       id: 'temperature',
-      // color: 'hsl(207, 70%, 50%)',
-      data: dataSensors.map((sensor) => ({
-        x: sensor.time,
-        y: sensor.temperature,
-      })),
+      data: dataSensors
+        .map((sensor) => ({
+          x: sensor.time,
+          y: sensor.temperature,
+        }))
+        .reverse(),
     },
     {
       id: 'humidity',
-      // color: 'hsl(120, 70%, 50%)',
-      data: dataSensors.map((sensor) => ({
-        x: sensor.time,
-        y: sensor.humidity,
-      })),
+      data: dataSensors
+        .map((sensor) => ({
+          x: sensor.time,
+          y: sensor.humidity,
+        }))
+        .reverse(),
     },
     {
       id: 'light',
-      data: dataSensors.map((sensor) => ({
-        x: sensor.time,
-        y: sensor.light,
-      })),
+      data: dataSensors
+        .map((sensor) => ({
+          x: sensor.time,
+          y: sensor.light,
+        }))
+        .reverse(),
     },
   ];
 
@@ -181,16 +210,9 @@ const Dashboard = () => {
                 {currentTime}
               </Typography>
             </Box>
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: '26px', color: colors.greenAccent[500] }}
-                />
-              </IconButton>
-            </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart  data={chartData} />
+            <LineChart data={chartData} />
           </Box>
         </Box>
 
@@ -212,9 +234,9 @@ const Dashboard = () => {
               Device
             </Typography>
           </Box>
-          {device.map((device, i) => (
+          {devices.map((device, i) => (
             <Box
-              key={`${device.txId}-${i}`}
+              key={`${device.id}-${i}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -234,7 +256,7 @@ const Dashboard = () => {
               <Button
                 sx={{
                   backgroundColor:
-                    device.status === '1'
+                    device.status === true
                       ? colors.greenAccent[600]
                       : colors.redAccent[600],
                   padding: '5px 10px',
@@ -245,21 +267,27 @@ const Dashboard = () => {
                   gap: '10px',
                   minWidth: '80px',
                   minHeight: '30px',
-                  color: 'white', // Ensure the text/icon color contrasts with the background
+                  color: 'white',
                   '&:hover': {
                     backgroundColor:
-                      device.status === '1'
+                      device.status === true
                         ? colors.greenAccent[500]
                         : colors.redAccent[500],
                   },
                 }}
+                onClick={() => handleToggle(device)}
               >
-                {device.status === '0' ? (
-                  <LockOutlinedIcon />
+                {device.status === false ? (
+                  <>
+                    <LockOutlinedIcon />
+                    OFF
+                  </>
                 ) : (
-                  <LockOpenOutlinedIcon />
+                  <>
+                    <LockOpenOutlinedIcon />
+                    ON
+                  </>
                 )}
-                {device.status === '1' ? 'ON' : 'OFF'}
               </Button>
             </Box>
           ))}

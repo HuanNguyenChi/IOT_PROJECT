@@ -1,6 +1,5 @@
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Button,
@@ -10,7 +9,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import InputBase from '@mui/material/InputBase';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -24,11 +22,11 @@ const Action = () => {
   const [deviceData, setDeviceData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [fromValue, setFromValue] = useState();
   const [toValue, setToValue] = useState();
   const [error, setError] = useState('');
-  const [sort, setSort] = useState(null);
+  const [sort, setSort] = useState('');
 
   const fetchData = async (page, size, startTime, endTime, sort) => {
     setLoading(true);
@@ -37,9 +35,9 @@ const Action = () => {
         params: {
           page,
           size,
-          startTime: startTime || '', // Truyền tham số startTime nếu có
-          endTime: endTime || '', // Truyền tham số endTime nếu có
-          sort, // Thêm tham số sort nếu cần
+          startTime: startTime || '', 
+          endTime: endTime || '', 
+          sort:sort || '', 
         },
       });
       setDeviceData(response.data);
@@ -70,7 +68,7 @@ const Action = () => {
       flex: 1,
       headerAlign: 'center',
       align: 'center',
-      renderCell: ({ row: { status } }) => {
+      renderCell: ({ row: { action } }) => {
         return (
           <>
             <Box
@@ -80,14 +78,16 @@ const Action = () => {
               display="flex"
               justifyContent="center"
               backgroundColor={
-                status === '1' ? colors.greenAccent[600] : colors.redAccent[600]
+                action === false
+                  ? colors.greenAccent[600]
+                  : colors.redAccent[600]
               }
               borderRadius="4px"
             >
-              {status === '0' && <LockOutlinedIcon />}
-              {status === '1' && <LockOpenOutlinedIcon />}
+              {action === true && <LockOutlinedIcon />}
+              {action === false && <LockOpenOutlinedIcon />}
               <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
-                {status === '1' ? 'ON' : 'OFF'}
+                {action === false ? 'ON' : 'OFF'}
               </Typography>
             </Box>
           </>
@@ -116,14 +116,14 @@ const Action = () => {
             display="flex"
             justifyContent="center"
             backgroundColor={
-              action === '1' ? colors.greenAccent[600] : colors.redAccent[600]
+              action === true ? colors.greenAccent[600] : colors.redAccent[600]
             }
             borderRadius="4px"
           >
-            {action === '0' && <LockOutlinedIcon />}
-            {action === '1' && <LockOpenOutlinedIcon />}
+            {action === false && <LockOutlinedIcon />}
+            {action === true && <LockOpenOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
-              {action === '1' ? 'ON' : 'OFF'}
+              {action === true ? 'ON' : 'OFF'}
             </Typography>
           </Box>
         );
@@ -142,6 +142,17 @@ const Action = () => {
   const handleFilter = () => {
     fetchData(page, pageSize, fromValue, toValue, sort);
   };
+  const handlePrevPage = () => {
+    if (page > 0) {
+      setPage((prevPage) => prevPage - 1);
+      fetchData(page - 1, pageSize, fromValue, toValue, sort);
+    }
+  };
+
+  const handleNextPage = () => {
+    setPage((prevPage) => prevPage + 1);
+    fetchData(page + 1, pageSize, fromValue, toValue, sort);
+  };
   return (
     <Box m="20px">
       <Header title="DEVICE" subtitle="Managing the data history of device" />
@@ -155,7 +166,7 @@ const Action = () => {
             fontWeight: 'bold',
           }}
         >
-          Sort by:
+          Sort:
         </Typography>
 
         {/* Select sort */}
@@ -296,26 +307,11 @@ const Action = () => {
             border: 'none',
             fontSize: '0.9rem',
           },
-          '& .MuiDataGrid-cell': {
-            borderBottom: 'none',
-            fontSize: '0.9rem',
-          },
-
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: 'none',
-            fontSize: '0.9rem',
-          },
-          '& .MuiDataGrid-virtualScroller': {
-            backgroundColor: colors.primary[400],
-          },
+          
           '& .MuiDataGrid-footerContainer': {
-            borderTop: 'none',
-            backgroundColor: colors.blueAccent[700],
+            display: "none",
           },
-          '& .MuiCheckbox-root': {
-            color: `${colors.greenAccent[200]} !important`,
-          },
+          
         }}
       >
         <DataGrid
@@ -330,6 +326,47 @@ const Action = () => {
           onPageChange={(newPage) => setPage(newPage)}
           onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
         />
+        {/* Custom Pagination */}
+        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+          <Button
+            onClick={handlePrevPage}
+            disabled={page === 0}
+            sx={{
+              backgroundColor: colors.primary[600],
+              color: 'white',
+              borderRadius: '50px',
+              padding: '8px 16px',
+              textTransform: 'none',
+              fontWeight: 'bold',
+              mx: 1,
+            }}
+          >
+            Prev
+          </Button>
+          <Typography
+            sx={{
+              fontSize: '1rem',
+              color: 'text.primary',
+              fontWeight: 'bold',
+            }}
+          >
+            Page {page + 1}
+          </Typography>
+          <Button
+            onClick={handleNextPage}
+            sx={{
+              backgroundColor: colors.primary[600],
+              color: 'white',
+              borderRadius: '50px',
+              padding: '8px 16px',
+              textTransform: 'none',
+              fontWeight: 'bold',
+              mx: 1,
+            }}
+          >
+            Next
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

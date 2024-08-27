@@ -27,7 +27,4 @@ public class Device {
     @Column(name = "STATUS")
     private Boolean status;
 
-//
-//    @OneToMany(mappedBy = "device")
-//    private List<DataDevice> listActionDevice;
 }

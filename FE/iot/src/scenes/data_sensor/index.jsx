@@ -4,6 +4,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  TablePagination,
   Typography,
   useTheme,
 } from '@mui/material';
@@ -38,7 +39,7 @@ const DataSensors = () => {
           endTime: toValue,
           field: selectedOption,
           sort,
-          ...filterParams, 
+          ...filterParams,
         },
       });
       setData(response.data);
@@ -109,6 +110,27 @@ const DataSensors = () => {
       sort,
     });
   };
+  const handlePrevPage = () => {
+    if (page > 0) {
+      setPage((prevPage) => prevPage - 1);
+      fetchData(page - 1, pageSize, {
+        startTime: fromValue,
+        endTime: toValue,
+        field: selectedOption,
+        sort,
+      });
+    }
+  };
+
+  const handleNextPage = () => {
+    setPage((prevPage) => prevPage + 1);
+    fetchData(page + 1, pageSize, {
+      startTime: fromValue,
+      endTime: toValue,
+      field: selectedOption,
+      sort,
+    });
+  };
 
   return (
     <Box m="20px">
@@ -154,9 +176,9 @@ const DataSensors = () => {
           onChange={handleChangeSelectField}
           variant="outlined"
         >
-          <MenuItem value="Temperature">Temperature</MenuItem>
-          <MenuItem value="Humidity">Humidity</MenuItem>
-          <MenuItem value="Light">Light</MenuItem>
+          <MenuItem value="temperature">Temperature</MenuItem>
+          <MenuItem value="humidity">Humidity</MenuItem>
+          <MenuItem value="light">Light</MenuItem>
         </Select>
 
         <Typography
@@ -168,7 +190,7 @@ const DataSensors = () => {
             fontWeight: 'bold',
           }}
         >
-          Sort by:
+          Sort:
         </Typography>
 
         {/* Select sort */}
@@ -269,39 +291,53 @@ const DataSensors = () => {
             border: 'none',
             fontSize: '0.9rem',
           },
-          '& .MuiDataGrid-cell': {
-            borderBottom: 'none',
-            fontSize: '0.9rem',
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: 'none',
-            fontSize: '0.9rem',
-            fontWeight: 'bold',
-          },
-          '& .MuiDataGrid-virtualScroller': {
-            backgroundColor: colors.primary[400],
-          },
           '& .MuiDataGrid-footerContainer': {
-            borderTop: 'none',
-            backgroundColor: colors.blueAccent[700],
-          },
-          '& .MuiCheckbox-root': {
-            color: `${colors.greenAccent[200]} !important`,
+            display: 'none',
           },
         }}
       >
-        <DataGrid
-          rows={data}
-          columns={columns}
-          page={page}
-          pageSize={pageSize}
-          rowCount={10}
-          pagination
-          paginationMode="server"
-          onPageChange={(newPage) => setPage(newPage)}
-          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        />
+        <DataGrid rows={data} columns={columns} pagination={false} />
+        {/* Custom Pagination */}
+        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+          <Button
+            onClick={handlePrevPage}
+            disabled={page === 0}
+            sx={{
+              backgroundColor: colors.primary[600],
+              color: 'white',
+              borderRadius: '50px',
+              padding: '8px 16px',
+              textTransform: 'none',
+              fontWeight: 'bold',
+              mx: 1,
+            }}
+          >
+            Prev
+          </Button>
+          <Typography
+            sx={{
+              fontSize: '1rem',
+              color: 'text.primary',
+              fontWeight: 'bold',
+            }}
+          >
+            Page {page + 1}
+          </Typography>
+          <Button
+            onClick={handleNextPage}
+            sx={{
+              backgroundColor: colors.primary[600],
+              color: 'white',
+              borderRadius: '50px',
+              padding: '8px 16px',
+              textTransform: 'none',
+              fontWeight: 'bold',
+              mx: 1,
+            }}
+          >
+            Next
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

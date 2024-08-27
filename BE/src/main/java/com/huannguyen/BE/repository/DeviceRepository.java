@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, Integer> {
     Device findById(int id);
+//    void updateStatusById(int id, Boolean status);
 }
