@@ -17,6 +17,11 @@ public class DataSensorServiceImpl implements DataSensorService {
     private DataSensorRepository dataSensorRepository;
 
     @Override
+    public List<DataSensor> findDataSensorLimit(Pageable pageable) {
+        return dataSensorRepository.findDataSensorLimit(pageable);
+    }
+
+    @Override
     public List<DataSensor> findByTimeBetween(String start, String end,Pageable pageable) {
         return dataSensorRepository.findByTimeBetween(start, end,pageable);
     }

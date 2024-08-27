@@ -16,6 +16,7 @@ public interface DataSensorRepository extends JpaRepository<DataSensor, Integer>
 
     @Query("select data from DataDevice data")
     List<DataSensor> findDataSensorLimit(Pageable pageable);
+
     @Query("SELECT ds FROM DataSensor ds WHERE ds.time BETWEEN :start AND :end")
 
     List<DataSensor> findByTimeBetween(String start, String end,Pageable pageable);

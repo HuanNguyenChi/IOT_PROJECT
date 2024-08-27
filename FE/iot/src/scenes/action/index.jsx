@@ -28,15 +28,15 @@ const Action = () => {
   const [error, setError] = useState('');
   const [sort, setSort] = useState('');
 
-  const fetchData = async (page, size, startTime, endTime, sort) => {
+  const fetchData = async (page, size, fromValue, toValue, sort) => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8086/api/datadevice`, {
         params: {
           page,
           size,
-          startTime: startTime || '', 
-          endTime: endTime || '', 
+          startTime: fromValue || '', 
+          endTime: toValue || '', 
           sort:sort || '', 
         },
       });
@@ -307,25 +307,13 @@ const Action = () => {
             border: 'none',
             fontSize: '0.9rem',
           },
-          
+
           '& .MuiDataGrid-footerContainer': {
-            display: "none",
+            display: 'none',
           },
-          
         }}
       >
-        <DataGrid
-          rows={deviceData}
-          columns={columns}
-          loading={loading}
-          page={page}
-          pageSize={pageSize}
-          // rowCount={rowCount}
-          pagination
-          paginationMode="server"
-          onPageChange={(newPage) => setPage(newPage)}
-          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        />
+        <DataGrid rows={deviceData} columns={columns} pagination={false} />
         {/* Custom Pagination */}
         <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
           <Button

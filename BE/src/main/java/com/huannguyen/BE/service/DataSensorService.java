@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DataSensorService {
+    List<DataSensor> findDataSensorLimit(Pageable pageable);
     List<DataSensor> findByTimeBetween(String start, String end,Pageable pageable);
     List<DataSensor> findDataSensorByTimeBetweenOrderByTemperature(String start, String end, Pageable pageable);
     List<DataSensor> findDataSensorByTimeBetweenOrderByHumidity(String start, String end, Pageable pageable);

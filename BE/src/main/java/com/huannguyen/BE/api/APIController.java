@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -116,7 +115,7 @@ public class APIController {
             @RequestParam(value = "field", required = false) String field,
             @RequestParam(value = "sort", required = false) String sort) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "time"));
         if(sort==null || sort.equals("")){
         }
         else if(sort.equals("increase")){
@@ -135,12 +134,14 @@ public class APIController {
         String start = "";
         if (startTime==null || "".equals(startTime)) {
             start = Time.getStartTime(1);
+
         } else {
             start = Time.getStartTime(Integer.parseInt(startTime));
         }
         String end = Time.getEndTime();
 
         List<DataSensor> list = dataSensorService.findByTimeBetween(start,end,pageable);
+//        Collections.reverse(list);
         return ResponseEntity.ok(list);
     }
 
@@ -159,6 +160,10 @@ public class APIController {
         }
         String start = "";
         String end = "";
+        if (startTime.isEmpty() && endTime.isEmpty()) {
+            List<DataDevice> ans = dataDeviceService.findDataDeviceLimit(pageable);
+            return ResponseEntity.ok(ans);
+        }
         if(startTime.isEmpty() ) {
             start = Time.getStartTime(1);
         }else {

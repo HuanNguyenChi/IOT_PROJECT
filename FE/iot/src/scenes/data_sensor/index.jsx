@@ -22,7 +22,7 @@ const DataSensors = () => {
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [loading, setLoading] = useState(true);
   const [fromValue, setFromValue] = useState();
   const [toValue, setToValue] = useState();
