@@ -1,14 +1,12 @@
 # How to use : 
   ## Clone repo : 
-    ```bash
-    git clone --depth 1 git@github.com:marmelab/material-ui-react-admin.git
-    cd material-ui-react-admin
+    git clone --depth 1 git@github.com:HuanNguyenChi/IOT_PROJECT.git
+    
   ## Install it and run:
-    ### Frontend 
-        ```bash
+  ## Frontend 
         npm install
         npm start 
-    ### Backend
+  ## Backend
       run on IDE Intellij 
 # Information 
   I.	Giới thiệu đề tài
