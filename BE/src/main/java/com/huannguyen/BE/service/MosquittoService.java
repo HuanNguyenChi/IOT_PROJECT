@@ -141,9 +141,10 @@ public class MosquittoService {
     private DataDevice getResponseMQTT(int id, MqttMessage message) {
         String data = new String(message.getPayload());
         DataDevice dataDevice = new DataDevice();
-
-        dataDevice.setDevice(deviceRepository.findById(id));
+        Device device = deviceRepository.findById(id);
+        dataDevice.setDevice(device);
         dataDevice.setTime(getTimeLocal());
+        dataDevice.setName(device.getName());
         dataDevice.setAction(data.equals("HIGH"));
 
         return dataDevice;

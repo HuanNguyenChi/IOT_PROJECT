@@ -1,3 +1,5 @@
+
+
 import DeviceThermostatOutlinedIcon from '@mui/icons-material/DeviceThermostatOutlined';
 import InvertColorsIcon from '@mui/icons-material/InvertColors';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -92,6 +94,17 @@ const Dashboard = () => {
         }))
         .reverse(),
     },
+    {
+      id: 'light',
+      data: dataSensors
+        .map((sensor) => ({
+          x: sensor.time,
+          y: sensor.light,
+        }))
+        .reverse(),
+    },
+  ];
+  const chartDataLight = [
     {
       id: 'light',
       data: dataSensors
@@ -211,9 +224,10 @@ const Dashboard = () => {
               </Typography>
             </Box>
           </Box>
-          <Box height="250px" m="-20px 0 0 0">
+          <Box height="275px" m="-20px 0 0 0">
             <LineChart data={chartData} />
           </Box>
+          
         </Box>
 
         <Box

@@ -7,6 +7,15 @@ const LineChart = ({ data }) => {
   const colorsMode = tokens(theme.palette.mode);
   const customColors = ['#e41a1c', '#377eb8', '#4daf4a'];
 
+  // Function to calculate max value + 10 units
+  const getMaxValueWithOffset = (data) => {
+    const allValues = data.flatMap((d) => d.data.map((point) => point.y));
+    const maxValue = Math.max(...allValues);
+    return maxValue + 10;
+  };
+
+  const yMax = getMaxValueWithOffset(data);
+
   return (
     <ResponsiveLine
       data={data}
@@ -52,8 +61,8 @@ const LineChart = ({ data }) => {
       }}
       yScale={{
         type: 'linear',
-        min: 'auto',
-        max: 'auto',
+        min: 0,
+        max: yMax,
         stacked: false,
         reverse: false,
       }}

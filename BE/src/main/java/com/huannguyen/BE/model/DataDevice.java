@@ -23,6 +23,9 @@ public class DataDevice {
     @Column(name = "ACTION")
     private Boolean action;
 
+    @Column(name = "NAME")
+    private String name;
+
     @ManyToOne()
     @JoinColumn(name = "DEVICE")
     private Device device;
