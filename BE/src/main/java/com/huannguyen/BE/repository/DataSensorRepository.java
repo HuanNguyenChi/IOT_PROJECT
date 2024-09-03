@@ -14,12 +14,19 @@ import java.util.List;
 @Repository
 public interface DataSensorRepository extends JpaRepository<DataSensor, Integer> {
 
-    @Query("select data from DataDevice data")
+    @Query("select data from DataSensor data")
     List<DataSensor> findDataSensorLimit(Pageable pageable);
 
     @Query("SELECT ds FROM DataSensor ds WHERE ds.time BETWEEN :start AND :end")
-
     List<DataSensor> findByTimeBetween(String start, String end,Pageable pageable);
+
+    @Query("SELECT d FROM DataSensor d WHERE " +
+            "(:field = 'temperature' AND d.temperature LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'humidity' AND d.humidity  LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'light' AND d.light  LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'time' AND d.time LIKE CONCAT('%', :value, '%'))")
+    List<DataSensor> findByField(@Param("field") String field, @Param("value") String value,Pageable pageable);
+
     List<DataSensor> findDataSensorByTimeBetweenOrderByTemperature(String start, String end, Pageable pageable);
     List<DataSensor> findDataSensorByTimeBetweenOrderByHumidity(String start, String end, Pageable pageable);
     List<DataSensor> findDataSensorByTimeBetweenOrderByLight(String start, String end, Pageable pageable);

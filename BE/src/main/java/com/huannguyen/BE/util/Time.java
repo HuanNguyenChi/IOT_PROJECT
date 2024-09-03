@@ -10,7 +10,7 @@ public class Time {
         return currentDateTime.format(formatter);
     }
 
-    public static String getEndTime() {
+    public static String getTimeLocal() {
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return currentDateTime.format(formatter);

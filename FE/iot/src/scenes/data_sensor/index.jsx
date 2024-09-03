@@ -24,9 +24,8 @@ const DataSensors = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [loading, setLoading] = useState(true);
-  const [fromValue, setFromValue] = useState();
-  const [toValue, setToValue] = useState();
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchData = async (page, size, filterParams) => {
     setLoading(true);
@@ -35,10 +34,9 @@ const DataSensors = () => {
         params: {
           page,
           size,
-          startTime: fromValue,
-          endTime: toValue,
           field: selectedOption,
           sort,
+          search: searchTerm,
           ...filterParams,
         },
       });
@@ -96,28 +94,28 @@ const DataSensors = () => {
   const handleChangeSort = (event) => {
     setSort(event.target.value);
   };
-  const handleFromValueChange = (event) => {
-    setFromValue(event.target.value);
-  };
-  const handleToValueChange = (event) => {
-    setToValue(event.target.value);
-  };
   const handleFilter = () => {
+    if (searchTerm && !selectedOption) {
+      setError('Please select a field to search.');
+      return;
+    }
+    setError('');
     fetchData(page, pageSize, {
-      startTime: fromValue,
-      endTime: toValue,
       field: selectedOption,
       sort,
+      search: searchTerm,
     });
+  };
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
   };
   const handlePrevPage = () => {
     if (page > 0) {
       setPage((prevPage) => prevPage - 1);
       fetchData(page - 1, pageSize, {
-        startTime: fromValue,
-        endTime: toValue,
         field: selectedOption,
         sort,
+        search: searchTerm,
       });
     }
   };
@@ -125,10 +123,9 @@ const DataSensors = () => {
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
     fetchData(page + 1, pageSize, {
-      startTime: fromValue,
-      endTime: toValue,
       field: selectedOption,
       sort,
+      search: searchTerm,
     });
   };
 
@@ -136,6 +133,37 @@ const DataSensors = () => {
     <Box m="20px">
       <Header title="DATA SENSORS" subtitle="Managing the data sensors" />
       <Box display="flex" alignItems="center">
+        <TextField
+          sx={{
+            ml: 2,
+            minWidth: 300,
+            height: 40,
+            backgroundColor: colors.primary[400],
+            borderRadius: '50px',
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                border: 'none',
+              },
+              '&:hover fieldset': {
+                border: 'none',
+              },
+              '&.Mui-focused fieldset': {
+                border: 'none',
+              },
+              '& .MuiInputBase-input': {
+                padding: '12px 12px',
+              },
+            },
+          }}
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          variant="outlined"
+          // type="number"
+          error={!!error}
+          helperText={error}
+        />
+
         <Typography
           sx={{
             ml: 2,
@@ -159,16 +187,16 @@ const DataSensors = () => {
             borderRadius: '50px',
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                border: 'none', // Remove the border
+                border: 'none',
               },
               '&:hover fieldset': {
-                border: 'none', // Remove border on hover
+                border: 'none',
               },
               '&.Mui-focused fieldset': {
-                border: 'none', // Remove border when focused
+                border: 'none',
               },
               '& .MuiSelect-select': {
-                padding: '0 12px', // Adjust padding to ensure text is properly positioned
+                padding: '0 12px',
               },
             },
           }}
@@ -179,6 +207,7 @@ const DataSensors = () => {
           <MenuItem value="temperature">Temperature</MenuItem>
           <MenuItem value="humidity">Humidity</MenuItem>
           <MenuItem value="light">Light</MenuItem>
+          <MenuItem value="time">Time</MenuItem>
         </Select>
 
         <Typography
@@ -204,16 +233,16 @@ const DataSensors = () => {
             borderRadius: '50px',
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                border: 'none', // Remove the border
+                border: 'none', 
               },
               '&:hover fieldset': {
-                border: 'none', // Remove border on hover
+                border: 'none', 
               },
               '&.Mui-focused fieldset': {
-                border: 'none', // Remove border when focused
+                border: 'none', 
               },
               '& .MuiSelect-select': {
-                padding: '0 12px', // Adjust padding to ensure text is properly positioned
+                padding: '0 12px', 
               },
             },
           }}
@@ -224,47 +253,6 @@ const DataSensors = () => {
           <MenuItem value="increase">Increase</MenuItem>
           <MenuItem value="decrease">Decrease</MenuItem>
         </Select>
-
-        <Typography
-          sx={{
-            ml: 2,
-            fontSize: '1rem',
-            color: 'text.primary',
-            mt: '12px',
-            fontWeight: 'bold',
-          }}
-        >
-          From:
-        </Typography>
-
-        {/* Input field for 'to' value */}
-        <TextField
-          sx={{
-            ml: 2,
-            minWidth: 120,
-            height: 40,
-            backgroundColor: colors.primary[400],
-            borderRadius: '50px',
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                border: 'none', // Remove the border
-              },
-              '&:hover fieldset': {
-                border: 'none', // Remove border on hover
-              },
-              '&.Mui-focused fieldset': {
-                border: 'none', // Remove border when focused
-              },
-              '& .MuiInputBase-input': {
-                padding: '12px 12px', // Adjust padding to ensure text is properly positioned
-              },
-            },
-          }}
-          value={toValue}
-          onChange={handleToValueChange}
-          variant="outlined"
-          type="number"
-        />
 
         {/* Filter button */}
         <Button

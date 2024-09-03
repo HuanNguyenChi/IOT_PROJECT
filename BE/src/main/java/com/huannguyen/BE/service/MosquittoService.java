@@ -7,6 +7,7 @@ import com.huannguyen.BE.model.Device;
 import com.huannguyen.BE.repository.DataDeviceRepository;
 import com.huannguyen.BE.repository.DataSensorRepository;
 import com.huannguyen.BE.repository.DeviceRepository;
+import com.huannguyen.BE.util.Time;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,30 +100,27 @@ public class MosquittoService {
             String data = new String(message.getPayload());
             DataSensor sensorData = new DataSensor();
 
-            Double[] arrayData = Arrays.stream(data.split(" "))
-                    .map(Double::valueOf)
-                    .toArray(Double[]::new);
+            String [] arrayData = Arrays.stream(data.split(" "))
+                    .map(String::valueOf)
+                    .toArray(String[]::new);
             sensorData.setTemperature(arrayData[0]);
             sensorData.setHumidity(arrayData[1]);
             sensorData.setLight(arrayData[2]);
-            sensorData.setTime(getTimeLocal());
+            sensorData.setTime(Time.getTimeLocal());
             dataSensorRepository.save(sensorData);
 
         } else if (Constant.LED_RESPONSE_1.equals(topic)) {
             DataDevice dataDevice = getResponseMQTT(1, message);
-
             DataDevice data = dataDeviceRepository.save(dataDevice);
             Constant.sharedList.add(data.getId());
 
         } else if (Constant.LED_RESPONSE_2.equals(topic)) {
             DataDevice dataDevice = getResponseMQTT(2, message);
-
             DataDevice data = dataDeviceRepository.save(dataDevice);
             Constant.sharedList.add(data.getId());
 
         } else if (Constant.LED_RESPONSE_3.equals(topic)) {
             DataDevice dataDevice = getResponseMQTT(3, message);
-
             DataDevice data = dataDeviceRepository.save(dataDevice);
             Constant.sharedList.add(data.getId());
         }
@@ -143,16 +141,11 @@ public class MosquittoService {
         DataDevice dataDevice = new DataDevice();
         Device device = deviceRepository.findById(id);
         dataDevice.setDevice(device);
-        dataDevice.setTime(getTimeLocal());
+        dataDevice.setTime(Time.getTimeLocal());
         dataDevice.setName(device.getName());
         dataDevice.setAction(data.equals("HIGH"));
 
         return dataDevice;
     }
 
-    public String getTimeLocal() {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return currentDateTime.format(formatter);
-    }
 }

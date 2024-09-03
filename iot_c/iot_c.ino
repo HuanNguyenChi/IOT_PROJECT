@@ -9,7 +9,8 @@ const char* ssid = "Deadline";
 const char* password = "244466666";
 
 // Cài đặt MQTT broker
-const char* mqtt_server = "192.168.133.180";
+// const char* mqtt_server = "192.168.133.180";
+const char* mqtt_server = "192.168.155.180";
 const char* client_id = "esp8266_client";
 
 // Cấu hình chân kết nối

@@ -20,13 +20,13 @@ public class DataSensor {
     private Integer id;
 
     @Column(name = "HUMIDITY")
-    private Double humidity;
+    private String humidity;
 
     @Column(name = "TEMPERATURE")
-    private Double temperature;
+    private String temperature;
 
     @Column(name = "LIGHT")
-    private Double light;
+    private String light;
 
     @Column(name = "TIME")
     private String time;

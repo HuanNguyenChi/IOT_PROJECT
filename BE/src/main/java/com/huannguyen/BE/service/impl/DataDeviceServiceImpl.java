@@ -33,6 +33,11 @@ public class DataDeviceServiceImpl implements DataDeviceService {
     }
 
     @Override
+    public List<DataDevice> findByTime(String value, Pageable pageable) {
+        return dataDeviceRepository.findByTime(value,pageable);
+    }
+
+    @Override
     public DataDevice findLastest() {
         return dataDeviceRepository.findTopByOrderByTimeDesc();
     }

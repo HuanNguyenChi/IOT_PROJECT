@@ -1,17 +1,17 @@
-import React from 'react';
+import FormatColorTextOutlinedIcon from '@mui/icons-material/FormatColorTextOutlined';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import {
-  Box,
-  Link,
-  Typography,
   Avatar,
+  Box,
   Card,
   Grid,
+  Link,
+  Typography,
   useTheme,
 } from '@mui/material';
+import React from 'react';
 import { tokens } from '../../theme';
-import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 const Profile = () => {
   const theme = useTheme();
@@ -72,14 +72,11 @@ const Profile = () => {
             >
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <Link
-                  href="https://www.facebook.com/profile.php?id=100013589746327"
+                  href="https://drive.google.com/file/d/1kyCOEd543WZfrAk3wf_0ZtF826EE0OPA/view?usp=sharing"
                   target="_blank"
                   rel="noopener"
                 >
-                  <FacebookOutlinedIcon
-                    fontSize="large"
-                    sx={{ color: 'blue' }}
-                  />
+                  <PictureAsPdfIcon fontSize="large" sx={{ color: 'blue' }} />
                 </Link>
                 <Link
                   href="https://github.com/HuanNguyenChi"
@@ -89,11 +86,14 @@ const Profile = () => {
                   <GitHubIcon fontSize="large" sx={{ color: 'black' }} />
                 </Link>
                 <Link
-                  href="https://www.linkedin.com/in/nc-huan/"
+                  href="https://winter-shadow-493858.postman.co/workspace/Team-Workspace~5270d1fb-652d-44c7-8925-68bdb042e641/collection/26714581-76087e94-0864-4678-aceb-5132fabf7566?action=share&creator=26714581"
                   target="_blank"
                   rel="noopener"
                 >
-                  <LinkedInIcon fontSize="large" sx={{ color: '#0077b5' }} />
+                  <FormatColorTextOutlinedIcon
+                    fontSize="large"
+                    sx={{ color: '#0077b5' }}
+                  />
                 </Link>
               </Box>
             </Box>

@@ -27,31 +27,35 @@ const Action = () => {
   const [toValue, setToValue] = useState();
   const [error, setError] = useState('');
   const [sort, setSort] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchData = async (page, size, fromValue, toValue, sort) => {
+  const fetchData = async (
+    page,
+    size,
+    sort,
+    searchTerm
+  ) => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8086/api/datadevice`, {
         params: {
           page,
           size,
-          startTime: fromValue || '', 
-          endTime: toValue || '', 
-          sort:sort || '', 
+          sort: sort || '',
+          search: searchTerm || '',
         },
       });
       setDeviceData(response.data);
-      console.log(response);
     } catch (error) {
-      setError('Not found');
+      setError('');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData(page, pageSize, fromValue, toValue, sort);
-  }, [page, pageSize, fromValue, toValue, sort]);
+    fetchData(page, pageSize, sort, searchTerm);
+  }, [page, pageSize, sort, searchTerm]);
 
   const columns = [
     { field: 'id', headerName: 'ID' },
@@ -62,38 +66,7 @@ const Action = () => {
       headerAlign: 'center',
       align: 'center',
     },
-    {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-      headerAlign: 'center',
-      align: 'center',
-      renderCell: ({ row: { action } }) => {
-        return (
-          <>
-            <Box
-              width="60%"
-              m="10px auto"
-              p="5px"
-              display="flex"
-              justifyContent="center"
-              backgroundColor={
-                action === false
-                  ? colors.greenAccent[600]
-                  : colors.redAccent[600]
-              }
-              borderRadius="4px"
-            >
-              {action === true && <LockOutlinedIcon />}
-              {action === false && <LockOpenOutlinedIcon />}
-              <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
-                {action === false ? 'ON' : 'OFF'}
-              </Typography>
-            </Box>
-          </>
-        );
-      },
-    },
+
     {
       field: 'time',
       headerName: 'Time',
@@ -133,30 +106,57 @@ const Action = () => {
   const handleChangeSort = (event) => {
     setSort(event.target.value);
   };
-  const handleFromValueChange = (event) => {
-    setFromValue(event.target.value);
-  };
-  const handleToValueChange = (event) => {
-    setToValue(event.target.value);
-  };
   const handleFilter = () => {
-    fetchData(page, pageSize, fromValue, toValue, sort);
+    fetchData(page, pageSize, fromValue, toValue, sort, searchTerm);
   };
   const handlePrevPage = () => {
     if (page > 0) {
       setPage((prevPage) => prevPage - 1);
-      fetchData(page - 1, pageSize, fromValue, toValue, sort);
+      fetchData(page - 1, pageSize, fromValue, toValue, sort, searchTerm);
     }
   };
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
-    fetchData(page + 1, pageSize, fromValue, toValue, sort);
+    fetchData(page + 1, pageSize, fromValue, toValue, sort, searchTerm);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
   };
   return (
     <Box m="20px">
       <Header title="DEVICE" subtitle="Managing the data history of device" />
       <Box display="flex" alignItems="center">
+        <TextField
+          sx={{
+            ml: 2,
+            minWidth: 300,
+            height: 40,
+            backgroundColor: colors.primary[400],
+            borderRadius: '50px',
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                border: 'none',
+              },
+              '&:hover fieldset': {
+                border: 'none',
+              },
+              '&.Mui-focused fieldset': {
+                border: 'none',
+              },
+              '& .MuiInputBase-input': {
+                padding: '12px 12px',
+              },
+            },
+          }}
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          variant="outlined"
+          error={!!error}
+          helperText={error}
+        />
         <Typography
           sx={{
             ml: 2,
@@ -180,16 +180,16 @@ const Action = () => {
             borderRadius: '50px',
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                border: 'none', // Remove the border
+                border: 'none',
               },
               '&:hover fieldset': {
-                border: 'none', // Remove border on hover
+                border: 'none',
               },
               '&.Mui-focused fieldset': {
-                border: 'none', // Remove border when focused
+                border: 'none',
               },
               '& .MuiSelect-select': {
-                padding: '0 12px', // Adjust padding to ensure text is properly positioned
+                padding: '0 12px',
               },
             },
           }}
@@ -200,87 +200,6 @@ const Action = () => {
           <MenuItem value="increase">Increase</MenuItem>
           <MenuItem value="decrease">Decrease</MenuItem>
         </Select>
-        <Typography
-          sx={{
-            ml: 2,
-            fontSize: '1rem',
-            color: 'text.primary',
-            mt: '12px',
-            fontWeight: 'bold',
-          }}
-        >
-          From:
-        </Typography>
-
-        {/* Input field for 'from' value */}
-        <TextField
-          sx={{
-            ml: 2,
-            minWidth: 120,
-            height: 40,
-            backgroundColor: colors.primary[400],
-            borderRadius: '50px',
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                border: 'none', // Remove the border
-              },
-              '&:hover fieldset': {
-                border: 'none', // Remove border on hover
-              },
-              '&.Mui-focused fieldset': {
-                border: 'none', // Remove border when focused
-              },
-              '& .MuiInputBase-input': {
-                padding: '12px 12px', // Adjust padding to ensure text is properly positioned
-              },
-            },
-          }}
-          value={fromValue}
-          onChange={handleFromValueChange}
-          variant="outlined"
-          type="number"
-        />
-
-        <Typography
-          sx={{
-            ml: 2,
-            fontSize: '1rem',
-            color: 'text.primary',
-            mt: '12px',
-            fontWeight: 'bold',
-          }}
-        >
-          To:
-        </Typography>
-
-        {/* Input field for 'to' value */}
-        <TextField
-          sx={{
-            ml: 2,
-            minWidth: 120,
-            height: 40,
-            backgroundColor: colors.primary[400],
-            borderRadius: '50px',
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                border: 'none', // Remove the border
-              },
-              '&:hover fieldset': {
-                border: 'none', // Remove border on hover
-              },
-              '&.Mui-focused fieldset': {
-                border: 'none', // Remove border when focused
-              },
-              '& .MuiInputBase-input': {
-                padding: '12px 12px', // Adjust padding to ensure text is properly positioned
-              },
-            },
-          }}
-          value={toValue}
-          onChange={handleToValueChange}
-          variant="outlined"
-          type="number"
-        />
 
         {/* Filter button */}
         <Button

@@ -14,7 +14,7 @@ public class Constant {
     public final static String LED_RESPONSE_2 = "LED_RESPONSE_2";
     public final static String LED_RESPONSE_3 = "LED_RESPONSE_3";
 
-    public static final String BROKER = "tcp://192.168.133.180:1883";
+    public static final String BROKER = "tcp://192.168.155.180:1883";
     public static final String CLIENT_ID = "java_client";
     public static final List<Integer> sharedList = new ArrayList<>();
 }

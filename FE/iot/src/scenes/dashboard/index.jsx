@@ -1,10 +1,12 @@
-
-
 import DeviceThermostatOutlinedIcon from '@mui/icons-material/DeviceThermostatOutlined';
 import InvertColorsIcon from '@mui/icons-material/InvertColors';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFan } from '@fortawesome/free-solid-svg-icons';
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -13,6 +15,7 @@ import { tokens } from '../../theme';
 import Header from '../../components/Header';
 import LineChart from '../../components/LineChart';
 import StatBox from '../../components/StatBox';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -54,7 +57,6 @@ const Dashboard = () => {
   }, []);
   const handleToggle = async (device) => {
     try {
-      // Gửi yêu cầu HTTP tới API với trạng thái mới và ID của thiết bị
       alert('Sending...');
       const response = await axios.get(`http://localhost:8086/api/led`, {
         params: {
@@ -65,7 +67,9 @@ const Dashboard = () => {
       const dataDevice = response.data;
       setDevices((prevDevices) =>
         prevDevices.map((d) =>
-          d.id === dataDevice.device.id ? { ...d, status: dataDevice.action } : d
+          d.id === dataDevice.device.id
+            ? { ...d, status: dataDevice.action }
+            : d
         )
       );
     } catch (error) {
@@ -94,17 +98,6 @@ const Dashboard = () => {
         }))
         .reverse(),
     },
-    {
-      id: 'light',
-      data: dataSensors
-        .map((sensor) => ({
-          x: sensor.time,
-          y: sensor.light,
-        }))
-        .reverse(),
-    },
-  ];
-  const chartDataLight = [
     {
       id: 'light',
       data: dataSensors
@@ -227,7 +220,6 @@ const Dashboard = () => {
           <Box height="275px" m="-20px 0 0 0">
             <LineChart data={chartData} />
           </Box>
-          
         </Box>
 
         <Box
@@ -263,6 +255,35 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
+                  {device.type === 'LED' &&
+                    (device.status ? (
+                      <LightbulbIcon
+                        sx={{ color: 'yellow', marginRight: '8px' }}
+                      />
+                    ) : (
+                      <LightbulbOutlinedIcon
+                        sx={{ marginRight: '8px', color: 'gray' }}
+                      />
+                    ))}
+
+                  {device.type === 'FAN' && (
+                    <FontAwesomeIcon
+                      icon={faFan}
+                      spin={device.status}
+                      color={device.status ? 'blue' : 'gray'}
+                      style={{ marginRight: '8px' }}
+                    />
+                  )}
+
+                  {device.type === 'AIR' && (
+                    <AcUnitIcon
+                      sx={{
+                        color: device.status ? 'blue' : 'gray',
+                        marginRight: '8px',
+                      }}
+                    />
+                  )}
+
                   {device.name}
                 </Typography>
               </Box>

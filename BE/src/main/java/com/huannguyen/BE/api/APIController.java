@@ -8,17 +8,18 @@ import com.huannguyen.BE.service.DataDeviceService;
 import com.huannguyen.BE.service.DataSensorService;
 import com.huannguyen.BE.service.DeviceService;
 import com.huannguyen.BE.service.MosquittoService;
-import com.huannguyen.BE.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,28 +42,11 @@ public class APIController {
 
     @GetMapping("")
     public ResponseEntity<List<DataSensor>> dashboard(
-            @RequestParam(value = "startTime", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
-            @RequestParam(value = "endTime", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        String start = "";
-        String end = "";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        if (startTime == null) {
-            start = Time.getStartTime(1);
-        } else {
-            start = formatter.format(startTime);
-        }
 
-        if (endTime == null) {
-            end = Time.getEndTime();
-        } else {
-            end = formatter.format(endTime);
-        }
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
-        List<DataSensor> sortedDataSensors = dataSensorService.findByTimeBetween(start, end, pageable)
+        List<DataSensor> sortedDataSensors = dataSensorService.findDataSensorLimit(pageable)
                 .stream()
                 .sorted(Comparator.comparing(DataSensor::getTime).reversed())
                 .collect(Collectors.toList());
@@ -71,7 +55,7 @@ public class APIController {
 
     @GetMapping("led")
     public ResponseEntity<DataDevice> control(@RequestParam(value = "state") String state,
-                                          @RequestParam(value = "id") Integer id) throws InterruptedException {
+                                              @RequestParam(value = "id") Integer id) throws InterruptedException {
         String topic = "";
         switch (id) {
             case 1:
@@ -92,94 +76,108 @@ public class APIController {
 
         Thread.sleep(2000);
 
-        Integer idDataDevice = Constant.sharedList.get(Constant.sharedList
-                .size() - 1);
-
-
-        DataDevice dataDevice = dataDeviceService.findById(idDataDevice);
-        Device device = deviceService.findById(id);
-        device.setStatus(dataDevice.getAction());
-        deviceService.save(device);
-        if(dataDevice.getDevice().getId().equals(id))
-            return ResponseEntity.ok(dataDevice);
-        return (ResponseEntity<DataDevice>) ResponseEntity.notFound();
+        while(true){
+            Integer idDataDevice = Constant.sharedList.get(Constant.sharedList
+                    .size() - 1);
+            DataDevice dataDevice = dataDeviceService.findById(idDataDevice);
+            Device device = deviceService.findById(id);
+            device.setStatus(dataDevice.getAction());
+            deviceService.save(device);
+            if (dataDevice.getDevice().getId().equals(id)){
+                return ResponseEntity.ok(dataDevice);
+            }else {
+                Thread.sleep(500);
+            }
+        }
     }
 
 
-// DONE
+    // DONE
     @GetMapping("datasensor")
     public ResponseEntity<List<DataSensor>> datasensor(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(value = "startTime", required = false) String startTime,
             @RequestParam(value = "field", required = false) String field,
-            @RequestParam(value = "sort", required = false) String sort) {
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "search", required = false) String search) {
 
-        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "time"));
-        if(sort==null || sort.equals("")){
-        }
-        else if(sort.equals("increase")){
-            if(field != null){
-                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, field));
-            }else {
-                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "time"));
-            }
-        }else if(sort.equals("decrease")){
-            if(field != null){
-                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, field));
-            }else {
-                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
-            }
-        }
-        String start = "";
-        if (startTime==null || "".equals(startTime)) {
-            start = Time.getStartTime(1);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
 
+        if (search != null && !search.isEmpty() && field != null && !field.isEmpty()) {
+            if (sort != null && !sort.isEmpty()) {
+                if (sort.equals("decrease")) {
+                    pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, field));
+
+                } else {
+                    pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, field));
+                }
+            }
+            List<DataSensor> ans = dataSensorService.findByField(field, search, pageable);
+            return ResponseEntity.ok(ans);
         } else {
-            start = Time.getStartTime(Integer.parseInt(startTime));
-        }
-        String end = Time.getEndTime();
+            if (sort != null && sort.equals("increase")) {
+                pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "time"));
+            } else if (sort != null && field != null) {
+                if (sort.equals("decrease")) {
+                    pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, field));
 
-        List<DataSensor> list = dataSensorService.findByTimeBetween(start,end,pageable);
-//        Collections.reverse(list);
+                } else {
+                    pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, field));
+                }
+            }
+        }
+
+
+        List<DataSensor> list = dataSensorService.findDataSensorLimit(pageable);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("datadevice")
     public ResponseEntity<List<DataDevice>> datadevice(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "20") int size,
-                                                       @RequestParam(value = "startTime", required = false) String startTime,
-                                                       @RequestParam(value = "endTime", required = false) String endTime,
-                                                       @RequestParam(value = "sort", required = false) String sort) {
+                                                       @RequestParam(value = "search", required = false) String search,
+                                                       @RequestParam(value = "sort", required = false) String sort
+    ) {
+        List<DataDevice> list = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Pageable pageable = PageRequest.of(page, size);
+        if (search == null || search.isEmpty()) {
+            list = dataDeviceService.findDataDeviceLimit(pageable);
+        } else {
+            list = dataDeviceService.findByTime(search, pageable);
+            list = customSort(sort,list);
+            return ResponseEntity.ok(list);
+        }
+        list = customSort(sort,list);
 
-        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "time"));
-        if(sort == null || sort.equals("decrease")){
-
-        }else if(sort.equals("increase")){
-            pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.ASC, "time"));
-        }
-        String start = "";
-        String end = "";
-        if (startTime.isEmpty() && endTime.isEmpty()) {
-            List<DataDevice> ans = dataDeviceService.findDataDeviceLimit(pageable);
-            return ResponseEntity.ok(ans);
-        }
-        if(startTime.isEmpty() ) {
-            start = Time.getStartTime(1);
-        }else {
-            start = Time.getStartTime(Integer.parseInt(startTime));
-        }
-        if(endTime.isEmpty() ) {
-            end = Time.getEndTime();
-        }else {
-            end = Time.getStartTime(Integer.parseInt(endTime));
-        }
-        List<DataDevice> list = dataDeviceService.findByTimeBetween(start,end,pageable);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("alldevice")
-    public ResponseEntity<List<Device>> alldevice(){
+    public ResponseEntity<List<Device>> alldevice() {
         return ResponseEntity.ok(deviceService.findAll());
+    }
+
+    private static List<DataDevice> customSort(String sort, List<DataDevice> list){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Collections.sort(list, new Comparator<DataDevice>() {
+            @Override
+            public int compare(DataDevice d1, DataDevice d2) {
+                try {
+                    Date date1 = dateFormat.parse(d1.getTime());
+                    Date date2 = dateFormat.parse(d2.getTime());
+                    if(sort == null || sort.isEmpty() || sort.equals("decrease")) {
+                        return date2.compareTo(date1);
+                    }else if(sort.equals("increase")){
+                        return date1.compareTo(date2);
+                    }else {
+                        return 0;
+                    }
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        });
+        return list;
     }
 }

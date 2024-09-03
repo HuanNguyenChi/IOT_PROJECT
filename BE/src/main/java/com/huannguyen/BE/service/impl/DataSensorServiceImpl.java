@@ -27,6 +27,11 @@ public class DataSensorServiceImpl implements DataSensorService {
     }
 
     @Override
+    public List<DataSensor> findByField(String field, String value, Pageable pageable) {
+        return dataSensorRepository.findByField(field,value,pageable);
+    }
+
+    @Override
     public List<DataSensor> findDataSensorByTimeBetweenOrderByTemperature(String start, String end, Pageable pageable) {
         return dataSensorRepository.findDataSensorByTimeBetweenOrderByTemperature(start, end,pageable);
     }

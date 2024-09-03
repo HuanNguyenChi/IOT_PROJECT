@@ -11,6 +11,7 @@ public interface DataDeviceService {
     void save(DataDevice dataDevice);
     DataDevice findById(int id);
     List<DataDevice> findDataDeviceLimit(Pageable pageable);
+    List<DataDevice> findByTime( String value, Pageable pageable);
     DataDevice findLastest();
     List<DataDevice> findByTimeBetween(String startTime, String endTime,Pageable pageable);
     List<DataDevice> findDataSensorLimit(Pageable pageable);
