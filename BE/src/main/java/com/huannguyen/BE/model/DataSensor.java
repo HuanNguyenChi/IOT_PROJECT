@@ -20,16 +20,19 @@ public class DataSensor {
     private Integer id;
 
     @Column(name = "HUMIDITY")
-    private String humidity;
+    private Double humidity;
 
     @Column(name = "TEMPERATURE")
-    private String temperature;
+    private Double temperature;
 
     @Column(name = "LIGHT")
-    private String light;
+    private Double light;
 
     @Column(name = "TIME")
-    private String time;
+    private Date time;
+
+    @Column(name = "TIMECONVERT")
+    private String timeConvert;
 
     @ManyToOne
     @JoinColumn(name = "ID_SENSOR")

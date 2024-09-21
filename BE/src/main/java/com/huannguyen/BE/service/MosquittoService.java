@@ -100,13 +100,14 @@ public class MosquittoService {
             String data = new String(message.getPayload());
             DataSensor sensorData = new DataSensor();
 
-            String [] arrayData = Arrays.stream(data.split(" "))
-                    .map(String::valueOf)
-                    .toArray(String[]::new);
+            Double [] arrayData = Arrays.stream(data.split(" "))
+                    .map(Double::valueOf)
+                    .toArray(Double[]::new);
             sensorData.setTemperature(arrayData[0]);
             sensorData.setHumidity(arrayData[1]);
-            sensorData.setLight(arrayData[2]);
-            sensorData.setTime(Time.getTimeLocal());
+            sensorData.setLight(1024 - arrayData[2]);
+            sensorData.setTime((Time.getTimeLocal()));
+            sensorData.setTimeConvert((Time.getTimeLocalConvert()));
             dataSensorRepository.save(sensorData);
 
         } else if (Constant.LED_RESPONSE_1.equals(topic)) {
@@ -142,6 +143,7 @@ public class MosquittoService {
         Device device = deviceRepository.findById(id);
         dataDevice.setDevice(device);
         dataDevice.setTime(Time.getTimeLocal());
+        dataDevice.setTimeConvert(Time.getTimeLocalConvert());
         dataDevice.setName(device.getName());
         dataDevice.setAction(data.equals("HIGH"));
 

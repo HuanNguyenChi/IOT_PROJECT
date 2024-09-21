@@ -21,10 +21,10 @@ public interface DataSensorRepository extends JpaRepository<DataSensor, Integer>
     List<DataSensor> findByTimeBetween(String start, String end,Pageable pageable);
 
     @Query("SELECT d FROM DataSensor d WHERE " +
-            "(:field = 'temperature' AND d.temperature LIKE CONCAT('%', :value, '%')) OR " +
-            "(:field = 'humidity' AND d.humidity  LIKE CONCAT('%', :value, '%')) OR " +
-            "(:field = 'light' AND d.light  LIKE CONCAT('%', :value, '%')) OR " +
-            "(:field = 'time' AND d.time LIKE CONCAT('%', :value, '%'))")
+            "(:field = 'temperature' AND STR(d.temperature) LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'humidity' AND STR(d.humidity) LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'light' AND STR(d.light) LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'time' AND STR(d.timeConvert) LIKE CONCAT('%', :value, '%'))")
     List<DataSensor> findByField(@Param("field") String field, @Param("value") String value,Pageable pageable);
 
     List<DataSensor> findDataSensorByTimeBetweenOrderByTemperature(String start, String end, Pageable pageable);

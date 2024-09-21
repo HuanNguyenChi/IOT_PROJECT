@@ -1,9 +1,11 @@
 //package com.huannguyen.BE.constant;
 //import org.eclipse.paho.client.mqttv3.*;
+//
+//import java.util.Scanner;
+//
 //public class Connect {
-//    private static final String BROKER = "tcp://192.168.133.180:1883";
+//    private static final String BROKER = "tcp://192.168.1.9:1883";
 //    private static final String CLIENT_ID = "java_client";
-//    private static final String[] TOPICS = { "LED_CONTROL_1", "LED_CONTROL_2", "LED_CONTROL_3" };
 //
 //    public static void main(String[] args) {
 //        try {
@@ -35,11 +37,22 @@
 //            });
 //
 //            // Subscribe to topics
-//            client.subscribe(Constant.DATA_SENSOR);
-//            client.subscribe(Constant.LED_RESPONSE_1);
-//            client.subscribe(Constant.LED_RESPONSE_2);
-//            client.subscribe(Constant.LED_RESPONSE_3);
+//            client.subscribe("SERVERMQTT");
 //
+//
+//            // pubish message
+//            String mes = "hello world";
+//            MqttMessage message = new MqttMessage(mes.getBytes());
+//            message.setQos(2);
+//            client.publish("SERVERMQTT", message);
+//            while(true){
+//                Scanner scanner = new Scanner(System.in);
+//                System.out.print("Enter your message: ");
+//                mes = scanner.nextLine();
+//                MqttMessage message2 = new MqttMessage(mes.getBytes());
+//                message2.setQos(2);
+//                client.publish("SERVERMQTT", message2);
+//            }
 //
 //        } catch (MqttException  e) {
 //            e.printStackTrace();

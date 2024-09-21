@@ -53,8 +53,13 @@ const Dashboard = () => {
       fetchData();
     }, 2000);
 
-    return () => clearInterval(interval);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString());
+    }, 1000);
+
+    return () => clearInterval(interval, timer);
   }, []);
+
   const handleToggle = async (device) => {
     try {
       alert('Sending...');
@@ -109,6 +114,33 @@ const Dashboard = () => {
     },
   ];
 
+  const getBackgroundColor = (value, type) => {
+    if (type === 'temperature') {
+      if (value > 30)
+        return 'linear-gradient(to left bottom, #fd1d1d, #ed1d89)';
+      if (value > 20)
+        return 'linear-gradient(to left bottom, #fd592b, #fd1d1d)';
+      return 'linear-gradient(to left bottom, #fcc345, #fd592b)';
+    }
+
+    if (type === 'humidity') {
+      if (value > 70)
+        return 'linear-gradient(to left bottom, #d4b2d3, #e710e0)';
+      if (value > 40)
+        return 'linear-gradient(to left bottom, #b7b6dd, #d4b2d3)';
+      return 'linear-gradient(to left bottom, #94bbe9, #b7b6dd)';
+    }
+
+    if (type === 'light') {
+      if (value > 700)
+        return 'linear-gradient(to left bottom, #2dfded, #49e2d6)';
+
+      if (value > 350)
+        return 'linear-gradient(to left bottom, #49e2d6, #6ebeb8)';
+      return 'linear-gradient(to left bottom, #6ebeb8, #2269c3)';
+    }
+  };
+
   return (
     <Box m="20px">
       {/* HEADER */}
@@ -124,26 +156,32 @@ const Dashboard = () => {
         gap="20px"
       >
         {/* ROW 1 */}
+
+        {/* STAT BOX TEMPERATURE */}
         <Box
           gridColumn="span 4"
           display="flex"
           alignItems="center"
           justifyContent="center"
           sx={{
-            backgroundImage:
-              'linear-gradient(to left bottom, #9D0208, #FFFF3F)',
+            backgroundImage: getBackgroundColor(
+              dataSensors[0].temperature,
+              'temperature'
+            ),
           }}
         >
           <StatBox
-            title={dataSensors[0].temperature + 'C' || 'N/A'}
+            title={dataSensors[0].temperature + 'C'}
             subtitle="Temperature"
             icon={
               <DeviceThermostatOutlinedIcon
-                sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
+                sx={{ color: 'white', fontSize: '26px' }}
               />
             }
           />
         </Box>
+
+        {/* STAT BOX HUMIDITY */}
         <Box
           gridColumn="span 4"
           backgroundColor={colors.primary[400]}
@@ -151,20 +189,22 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="center"
           sx={{
-            backgroundImage:
-              'linear-gradient(to left bottom, #1c92d2, #f2fcfe)',
+            backgroundImage: getBackgroundColor(
+              dataSensors[0].humidity,
+              'humidity'
+            ),
           }}
         >
           <StatBox
-            title={dataSensors[0].humidity + '%' || 'N/A'}
+            title={dataSensors[0].humidity + '%'}
             subtitle="Humidity"
             icon={
-              <InvertColorsIcon
-                sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
-              />
+              <InvertColorsIcon sx={{ color: 'white', fontSize: '26px' }} />
             }
           />
         </Box>
+
+        {/* STAT BOX LIGHT */}
         <Box
           gridColumn="span 4"
           backgroundColor={colors.primary[400]}
@@ -172,18 +212,13 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="center"
           sx={{
-            backgroundImage:
-              'linear-gradient(to left bottom, #fffc00, #ffffff)',
+            backgroundImage: getBackgroundColor(dataSensors[0].light, 'light'),
           }}
         >
           <StatBox
-            title={dataSensors[0].light + 'Lux' || 'N/A'}
+            title={dataSensors[0].light + 'Lux'}
             subtitle="Light"
-            icon={
-              <LightModeIcon
-                sx={{ color: colors.greenAccent[600], fontSize: '26px' }}
-              />
-            }
+            icon={<LightModeIcon sx={{ color: 'white', fontSize: '26px' }} />}
           />
         </Box>
 

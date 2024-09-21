@@ -19,12 +19,23 @@ public interface DataDeviceRepository extends JpaRepository<DataDevice,Integer> 
     List<DataDevice> findDataDeviceLimit(Pageable pageable);
 
     List<DataDevice> findByDeviceId(int deviceId);
-    @Query("SELECT dv FROM DataDevice dv WHERE dv.time BETWEEN :start AND :end")
-    List<DataDevice> findByTimeBetween(String start, String end,Pageable pageable);
+    @Query("SELECT d FROM DataDevice d")
+    List<DataDevice> findByPageable(Pageable pageable);
 
     DataDevice findTopByOrderByTimeDesc();
 
     @Query("SELECT d FROM DataDevice d WHERE " +
-            "( d.time LIKE CONCAT('%', :value, '%'))")
+            "( STR(d.timeConvert)  LIKE CONCAT('%', :value, '%'))")
     List<DataDevice> findByTime( String value, Pageable pageable);
+
+    @Query("SELECT d FROM DataDevice d WHERE d.name LIKE CONCAT('%', :value, '%')")
+    List<DataDevice> findByNameLike(@Param("value") String value, Pageable pageable);
+
+    @Query("SELECT d FROM DataDevice d WHERE STR(d.timeConvert) LIKE CONCAT('%', :value, '%')")
+    List<DataDevice> findByTimeConvertLike(@Param("value") String value, Pageable pageable);
+
+    @Query("SELECT d FROM DataDevice d WHERE " +
+            "(:field = 'name' AND STR(d.name) LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'time' AND STR(d.timeConvert) LIKE CONCAT('%', :value, '%'))")
+    List<DataDevice> findByField(@Param("field") String field, @Param("value") String value,Pageable pageable);
 }

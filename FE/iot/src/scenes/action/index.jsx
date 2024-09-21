@@ -3,15 +3,15 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
   Box,
   Button,
-  MenuItem,
-  Select,
   TextField,
   Typography,
   useTheme,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Header from '../../components/Header';
 import { tokens } from '../../theme';
 
@@ -21,44 +21,46 @@ const Action = () => {
 
   const [deviceData, setDeviceData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [field, setField] = useState('');
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
-  const [fromValue, setFromValue] = useState();
-  const [toValue, setToValue] = useState();
   const [error, setError] = useState('');
   const [sort, setSort] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchData = async (
-    page,
-    size,
-    sort,
-    searchTerm
-  ) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`http://localhost:8086/api/datadevice`, {
-        params: {
-          page,
-          size,
-          sort: sort || '',
-          search: searchTerm || '',
-        },
-      });
-      setDeviceData(response.data);
-    } catch (error) {
-      setError('');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchData = useCallback(
+    async (page, pageSize, sort, searchTerm, field) => {
+      console.log(page, pageSize, sort, searchTerm, field);
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `http://localhost:8086/api/datadevice`,
+          {
+            params: {
+              page,
+              size: pageSize,
+              sort: sort || '',
+              search: searchTerm || '',
+              field: field || '',
+            },
+          }
+        );
+        setDeviceData(response.data);
+      } catch (error) {
+        setError('');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, pageSize, sort, searchTerm, field]
+  );
 
   useEffect(() => {
-    fetchData(page, pageSize, sort, searchTerm);
-  }, [page, pageSize, sort, searchTerm]);
+    fetchData(page, pageSize, sort, searchTerm, field);
+  }, [page, pageSize, sort, searchTerm, field]);
 
   const columns = [
-    { field: 'id', headerName: 'ID' },
+    { field: 'id', headerName: 'ID', sortable: false },
     {
       field: 'name',
       headerName: 'Name',
@@ -68,7 +70,7 @@ const Action = () => {
     },
 
     {
-      field: 'time',
+      field: 'timeConvert',
       headerName: 'Time',
       flex: 1,
       headerAlign: 'center',
@@ -80,6 +82,7 @@ const Action = () => {
       headerAlign: 'center',
       align: 'center',
       flex: 1,
+      sortable: false,
       renderCell: ({ row: { action } }) => {
         return (
           <Box
@@ -103,27 +106,48 @@ const Action = () => {
       },
     },
   ];
-  const handleChangeSort = (event) => {
-    setSort(event.target.value);
-  };
+
   const handleFilter = () => {
-    fetchData(page, pageSize, fromValue, toValue, sort, searchTerm);
+    fetchData(page, pageSize, sort, searchTerm, field);
   };
   const handlePrevPage = () => {
     if (page > 0) {
       setPage((prevPage) => prevPage - 1);
-      fetchData(page - 1, pageSize, fromValue, toValue, sort, searchTerm);
     }
   };
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
-    fetchData(page + 1, pageSize, fromValue, toValue, sort, searchTerm);
   };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
+  const handleChangeField = (event) => {
+    setField(event.target.value);
+  };
+  const handlePageSize = (event) => {
+    const size = event.target.value;
+    console.log(size);
+    setPageSize(size);
+    if (isNaN(parseInt(size, 10)) || parseInt(size, 10) <= 0) {
+      setDeviceData([]);
+      return;
+    }
+    fetchData(page, parseInt(size, 10), sort, searchTerm, field);
+  };
+  const handleSortModelChange = (sortModel) => {
+    console.log(sortModel);
+    if (sortModel.length > 0) {
+      const { field, sort } = sortModel[0];
+      setSort(sort === 'asc' ? 'increase' : 'decrease');
+      setField(field);
+    } else {
+      setSort('');
+      setField('');
+    }
+  };
+
   return (
     <Box m="20px">
       <Header title="DEVICE" subtitle="Managing the data history of device" />
@@ -150,7 +174,7 @@ const Action = () => {
               },
             },
           }}
-          placeholder="Search..."
+          placeholder="yyyy-MM-dd HH:mm:ss"
           value={searchTerm}
           onChange={handleSearchChange}
           variant="outlined"
@@ -166,10 +190,10 @@ const Action = () => {
             fontWeight: 'bold',
           }}
         >
-          Sort:
+          Select Field:
         </Typography>
 
-        {/* Select sort */}
+        {/* Select dropdown */}
         <Select
           defaultValue="option1"
           sx={{
@@ -193,14 +217,13 @@ const Action = () => {
               },
             },
           }}
-          value={sort}
-          onChange={handleChangeSort}
+          value={field}
+          onChange={handleChangeField}
           variant="outlined"
         >
-          <MenuItem value="increase">Increase</MenuItem>
-          <MenuItem value="decrease">Decrease</MenuItem>
+          <MenuItem value="name">Name</MenuItem>
+          <MenuItem value="timeConvert">Time</MenuItem>
         </Select>
-
         {/* Filter button */}
         <Button
           variant="contained"
@@ -232,9 +255,20 @@ const Action = () => {
           },
         }}
       >
-        <DataGrid rows={deviceData} columns={columns} pagination={false} />
+        <DataGrid
+          rows={deviceData}
+          columns={columns}
+          pagination={false}
+          onSortModelChange={handleSortModelChange}
+        />
+
         {/* Custom Pagination */}
-        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+          mt={2}
+        >
           <Button
             onClick={handlePrevPage}
             disabled={page === 0}
@@ -273,6 +307,40 @@ const Action = () => {
           >
             Next
           </Button>
+          <Box ml={2} display="flex" alignItems="center">
+            <Typography>Page size:</Typography>
+            <TextField
+              sx={{
+                ml: 2,
+                width: '80px',
+                height: 40,
+                backgroundColor: colors.primary[400],
+                borderRadius: '10px',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                  '&:hover fieldset': {
+                    border: 'none',
+                  },
+                  '&.Mui-focused fieldset': {
+                    border: 'none',
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '10px',
+                    textAlign: 'center',
+                  },
+                },
+              }}
+              value={pageSize}
+              onChange={handlePageSize}
+              variant="outlined"
+              type="number"
+              inputProps={{ min: 1 }}
+              error={!!error}
+              helperText={error}
+            />
+          </Box>
         </Box>
       </Box>
     </Box>

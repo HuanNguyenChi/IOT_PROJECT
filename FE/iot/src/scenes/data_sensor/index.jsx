@@ -4,13 +4,12 @@ import {
   MenuItem,
   Select,
   TextField,
-  TablePagination,
   Typography,
   useTheme,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Header from '../../components/Header';
 import { tokens } from '../../theme';
 
@@ -18,43 +17,45 @@ const DataSensors = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [selectedOption, setSelectedOption] = useState('');
-  const [sort, setSort] = useState(null);
+  const [order, setOrder] = useState(null);
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [valueSearch, setValueSearch] = useState('');
 
-  const fetchData = async (page, size, filterParams) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`http://localhost:8086/api/datasensor`, {
-        params: {
-          page,
-          size,
-          field: selectedOption,
-          sort,
-          search: searchTerm,
-          ...filterParams,
-        },
-      });
-      setData(response.data);
-      console.log(response);
-    } catch (error) {
-      setError('Not found');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchData = useCallback(
+    async (page, size, filterParams) => {
+      try {
+        const response = await axios.get(
+          'http://localhost:8086/api/datasensor',
+          {
+            params: {
+              page,
+              size,
+              field: selectedOption,
+              order,
+              search: valueSearch,
+              ...filterParams,
+            },
+          }
+        );
+        setData(response.data);
+        console.log(data);
+      } catch (error) {
+        // setError('Không thể lấy dữ liệu');
+      }
+    },
+    [page, pageSize, selectedOption, order, valueSearch]
+  );
 
   useEffect(() => {
     fetchData(page, pageSize, {});
-  }, [page, pageSize]);
+  }, [page, pageSize, fetchData]);
 
   const columns = [
-    { field: 'id', headerName: 'ID' },
+    { field: 'id', headerName: 'ID', sortable: false },
     {
       field: 'temperature',
       headerName: 'Temperature',
@@ -80,7 +81,7 @@ const DataSensors = () => {
       align: 'center',
     },
     {
-      field: 'time',
+      field: 'timeConvert',
       headerName: 'Time',
       flex: 1,
       headerAlign: 'center',
@@ -91,42 +92,52 @@ const DataSensors = () => {
   const handleChangeSelectField = (event) => {
     setSelectedOption(event.target.value);
   };
-  const handleChangeSort = (event) => {
-    setSort(event.target.value);
-  };
+
   const handleFilter = () => {
-    if (searchTerm && !selectedOption) {
+    if (valueSearch && !selectedOption) {
       setError('Please select a field to search.');
       return;
     }
     setError('');
-    fetchData(page, pageSize, {
-      field: selectedOption,
-      sort,
-      search: searchTerm,
-    });
+    fetchData(page, pageSize, selectedOption, order, valueSearch);
   };
+
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+    setValueSearch(event.target.value);
   };
+
+  const handlePageSize = (event) => {
+    const size = event.target.value;
+    setPageSize(size);
+    if (isNaN(parseInt(size, 10)) || parseInt(size, 10) <= 0) {
+      setData([]);
+      setError();
+      return;
+    }
+    setPage(0);
+    setError('');
+  };
+
   const handlePrevPage = () => {
     if (page > 0) {
       setPage((prevPage) => prevPage - 1);
-      fetchData(page - 1, pageSize, {
-        field: selectedOption,
-        sort,
-        search: searchTerm,
-      });
     }
   };
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
-    fetchData(page + 1, pageSize, {
-      field: selectedOption,
-      sort,
-      search: searchTerm,
-    });
+  };
+
+  const handleSortModelChange = (sortModel) => {
+    console.log(sortModel);
+    if (sortModel.length > 0) {
+      const { field, sort } = sortModel[0];
+      setSelectedOption(field);
+      setOrder(sort === 'asc' ? 'increase' : 'decrease');
+    } else {
+      setSelectedOption('');
+      setOrder('');
+    }
   };
 
   return (
@@ -156,12 +167,12 @@ const DataSensors = () => {
             },
           }}
           placeholder="Search..."
-          value={searchTerm}
+          value={valueSearch}
           onChange={handleSearchChange}
           variant="outlined"
-          // type="number"
-          error={!!error}
-          helperText={error}
+          type="text"
+          // error={!!error}
+          // helperText={error}
         />
 
         <Typography
@@ -210,50 +221,6 @@ const DataSensors = () => {
           <MenuItem value="time">Time</MenuItem>
         </Select>
 
-        <Typography
-          sx={{
-            ml: 2,
-            fontSize: '1rem',
-            color: 'text.primary',
-            mt: '12px',
-            fontWeight: 'bold',
-          }}
-        >
-          Sort:
-        </Typography>
-
-        {/* Select sort */}
-        <Select
-          defaultValue="option1"
-          sx={{
-            ml: 2,
-            minWidth: 120,
-            height: 40,
-            backgroundColor: colors.primary[400],
-            borderRadius: '50px',
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                border: 'none', 
-              },
-              '&:hover fieldset': {
-                border: 'none', 
-              },
-              '&.Mui-focused fieldset': {
-                border: 'none', 
-              },
-              '& .MuiSelect-select': {
-                padding: '0 12px', 
-              },
-            },
-          }}
-          value={sort}
-          onChange={handleChangeSort}
-          variant="outlined"
-        >
-          <MenuItem value="increase">Increase</MenuItem>
-          <MenuItem value="decrease">Decrease</MenuItem>
-        </Select>
-
         {/* Filter button */}
         <Button
           variant="contained"
@@ -284,9 +251,20 @@ const DataSensors = () => {
           },
         }}
       >
-        <DataGrid rows={data} columns={columns} pagination={false} />
+        <DataGrid
+          rows={data}
+          columns={columns}
+          pagination={false}
+          onSortModelChange={handleSortModelChange}
+        />
+
         {/* Custom Pagination */}
-        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+          mt={2}
+        >
           <Button
             onClick={handlePrevPage}
             disabled={page === 0}
@@ -325,6 +303,40 @@ const DataSensors = () => {
           >
             Next
           </Button>
+          <Box ml={2} display="flex" alignItems="center">
+            <Typography>Page size:</Typography>
+            <TextField
+              sx={{
+                ml: 2,
+                width: '80px',
+                height: 40,
+                backgroundColor: colors.primary[400],
+                borderRadius: '10px',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                  '&:hover fieldset': {
+                    border: 'none',
+                  },
+                  '&.Mui-focused fieldset': {
+                    border: 'none',
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '10px',
+                    textAlign: 'center',
+                  },
+                },
+              }}
+              value={pageSize}
+              onChange={handlePageSize}
+              variant="outlined"
+              type="number"
+              // inputProps={{ min: 0 }}
+              // error={!!error}
+              // helperText={error}
+            />
+          </Box>
         </Box>
       </Box>
     </Box>

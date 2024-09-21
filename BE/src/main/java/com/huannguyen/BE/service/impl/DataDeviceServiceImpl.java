@@ -28,27 +28,23 @@ public class DataDeviceServiceImpl implements DataDeviceService {
     }
 
     @Override
-    public List<DataDevice> findDataDeviceLimit(Pageable pageable) {
-        return dataDeviceRepository.findDataDeviceLimit(pageable);
+    public List<DataDevice> findbyField(String field, String value, Pageable pageable) {
+        return dataDeviceRepository.findByField(field,value,pageable);
     }
 
     @Override
-    public List<DataDevice> findByTime(String value, Pageable pageable) {
-        return dataDeviceRepository.findByTime(value,pageable);
+    public List<DataDevice> findByPageable(Pageable pageable) {
+        return dataDeviceRepository.findByPageable(pageable);
     }
 
     @Override
-    public DataDevice findLastest() {
-        return dataDeviceRepository.findTopByOrderByTimeDesc();
+    public List<DataDevice> findByNameLike(String value, Pageable pageable) {
+        return dataDeviceRepository.findByNameLike(value,pageable);
     }
 
     @Override
-    public List<DataDevice> findByTimeBetween(String startTime, String endTime,Pageable pageable) {
-        return dataDeviceRepository.findByTimeBetween(startTime,endTime,pageable);
+    public List<DataDevice> findByTimeConvertLike(String value, Pageable pageable) {
+        return dataDeviceRepository.findByTimeConvertLike(value,pageable);
     }
 
-    @Override
-    public List<DataDevice> findDataSensorLimit(Pageable pageable) {
-        return dataDeviceRepository.findDataDeviceLimit(pageable);
-    }
 }
