@@ -21,7 +21,7 @@ const Action = () => {
 
   const [deviceData, setDeviceData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [field, setField] = useState('');
+  const [field, setField] = useState('null');
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [error, setError] = useState('');
@@ -68,14 +68,6 @@ const Action = () => {
       headerAlign: 'center',
       align: 'center',
     },
-
-    {
-      field: 'timeConvert',
-      headerName: 'Time',
-      flex: 1,
-      headerAlign: 'center',
-      align: 'center',
-    },
     {
       field: 'action',
       headerName: 'Action',
@@ -105,6 +97,13 @@ const Action = () => {
         );
       },
     },
+    {
+      field: 'timeConvert',
+      headerName: 'Time',
+      flex: 1,
+      headerAlign: 'center',
+      align: 'center',
+    },
   ];
 
   const handleFilter = () => {
@@ -128,13 +127,23 @@ const Action = () => {
   };
   const handlePageSize = (event) => {
     const size = event.target.value;
-    console.log(size);
     setPageSize(size);
     if (isNaN(parseInt(size, 10)) || parseInt(size, 10) <= 0) {
       setDeviceData([]);
       return;
     }
     fetchData(page, parseInt(size, 10), sort, searchTerm, field);
+  };
+  const handlePageChange = (event) => {
+    const inputPage = parseInt(event.target.value, 10) - 1;
+    if (inputPage === '' || inputPage === null) {
+      setPage(0);
+    }
+    setPage(inputPage);
+    if (!isNaN(inputPage) && inputPage >= 0) {
+      setPage(inputPage);
+    }
+    fetchData(page, pageSize, sort, searchTerm, field);
   };
   const handleSortModelChange = (sortModel) => {
     console.log(sortModel);
@@ -195,7 +204,7 @@ const Action = () => {
 
         {/* Select dropdown */}
         <Select
-          defaultValue="option1"
+          defaultValue="null"
           sx={{
             ml: 2,
             minWidth: 120,
@@ -221,6 +230,7 @@ const Action = () => {
           onChange={handleChangeField}
           variant="outlined"
         >
+          <MenuItem value="null">All</MenuItem>
           <MenuItem value="name">Name</MenuItem>
           <MenuItem value="timeConvert">Time</MenuItem>
         </Select>
@@ -293,6 +303,36 @@ const Action = () => {
           >
             Page {page + 1}
           </Typography>
+          {/* <TextField
+            type="number"
+            value={page + 1}
+            onChange={handlePageChange}
+            sx={{
+              ml: 2,
+              width: 60,
+              height: 40,
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  border: 'none',
+                },
+                '&:hover fieldset': {
+                  border: 'none',
+                },
+                '&.Mui-focused fieldset': {
+                  border: 'none',
+                },
+                '& .MuiSelect-select': {
+                  padding: '0 12px',
+                },
+              },
+              backgroundColor: colors.primary[400],
+              borderRadius: '50px',
+              textAlign: 'center',
+              paddingBottom: 'auto',
+              justifyContent: 'center',
+            }}
+          /> */}
+
           <Button
             onClick={handleNextPage}
             sx={{
@@ -309,13 +349,14 @@ const Action = () => {
           </Button>
           <Box ml={2} display="flex" alignItems="center">
             <Typography>Page size:</Typography>
-            <TextField
+            <Select
+              defaultValue="option1"
               sx={{
                 ml: 2,
-                width: '80px',
+                minWidth: 80,
                 height: 40,
                 backgroundColor: colors.primary[400],
-                borderRadius: '10px',
+                borderRadius: '50px',
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
                     border: 'none',
@@ -326,20 +367,22 @@ const Action = () => {
                   '&.Mui-focused fieldset': {
                     border: 'none',
                   },
-                  '& .MuiInputBase-input': {
-                    padding: '10px',
-                    textAlign: 'center',
+                  '& .MuiSelect-select': {
+                    padding: '0 12px',
                   },
                 },
               }}
               value={pageSize}
               onChange={handlePageSize}
-              variant="outlined"
-              type="number"
-              inputProps={{ min: 1 }}
-              error={!!error}
-              helperText={error}
-            />
+              // variant="none"
+            >
+              <MenuItem value="5">5</MenuItem>
+              <MenuItem value="10">10</MenuItem>
+              <MenuItem value="15">15</MenuItem>
+              <MenuItem value="20">20</MenuItem>
+              <MenuItem value="25">25</MenuItem>
+              <MenuItem value="100">100</MenuItem>
+            </Select>
           </Box>
         </Box>
       </Box>

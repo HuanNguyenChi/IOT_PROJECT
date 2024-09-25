@@ -43,8 +43,7 @@ public class APIController {
     @GetMapping("")
     public ResponseEntity<List<DataSensor>> dashboard(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-
+            @RequestParam(value = "pageSize", defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
         List<DataSensor> sortedDataSensors = dataSensorService.findDataSensorLimit(pageable)
                 .stream()
@@ -101,8 +100,8 @@ public class APIController {
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "search", required = false) String search) {
 
-        System.out.println(page + " " + size + " " + field + " " + order + "Search: " + search);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
+        if (field.equals("null")) field = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (search == null || search.isEmpty()) {
             if(field == null ){
@@ -119,7 +118,7 @@ public class APIController {
             }
         } else {
             if (!field.isEmpty()) {
-                if (order == null || order.isEmpty() || order.equals("decrease")) {
+                if (order == null || order.isEmpty() || order.equals("decrease") ) {
                     pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, field));
                 } else if (order.equals("increase")) {
                     pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, field));
@@ -141,7 +140,6 @@ public class APIController {
                                                        @RequestParam(value = "sort", required = false) String sort,
                                                        @RequestParam(value = "field", required = false) String field) {
         List<DataDevice> list = new ArrayList<>();
-        System.out.println(page + " " + size + " " + search + " " + sort + " " + field);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timeConvert"));
         if(field == null){
             if(sort == null){

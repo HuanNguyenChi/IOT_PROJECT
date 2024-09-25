@@ -16,7 +16,7 @@ import { tokens } from '../../theme';
 const DataSensors = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState('null');
   const [order, setOrder] = useState(null);
 
   const [data, setData] = useState([]);
@@ -34,18 +34,16 @@ const DataSensors = () => {
             params: {
               page,
               size,
-              field: selectedOption,
+              field: selectedOption || '',
               order,
-              search: valueSearch,
+              search: valueSearch || '',
               ...filterParams,
             },
           }
         );
         setData(response.data);
         console.log(data);
-      } catch (error) {
-        // setError('Không thể lấy dữ liệu');
-      }
+      } catch (error) {}
     },
     [page, pageSize, selectedOption, order, valueSearch]
   );
@@ -171,8 +169,6 @@ const DataSensors = () => {
           onChange={handleSearchChange}
           variant="outlined"
           type="text"
-          // error={!!error}
-          // helperText={error}
         />
 
         <Typography
@@ -189,7 +185,7 @@ const DataSensors = () => {
 
         {/* Select dropdown */}
         <Select
-          defaultValue="option1"
+          defaultValue='null'
           sx={{
             ml: 2,
             minWidth: 120,
@@ -215,6 +211,7 @@ const DataSensors = () => {
           onChange={handleChangeSelectField}
           variant="outlined"
         >
+          <MenuItem value='null'>All</MenuItem>
           <MenuItem value="temperature">Temperature</MenuItem>
           <MenuItem value="humidity">Humidity</MenuItem>
           <MenuItem value="light">Light</MenuItem>
@@ -305,13 +302,14 @@ const DataSensors = () => {
           </Button>
           <Box ml={2} display="flex" alignItems="center">
             <Typography>Page size:</Typography>
-            <TextField
+            <Select
+              defaultValue="option1"
               sx={{
                 ml: 2,
-                width: '80px',
+                minWidth: 80,
                 height: 40,
                 backgroundColor: colors.primary[400],
-                borderRadius: '10px',
+                borderRadius: '50px',
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': {
                     border: 'none',
@@ -322,20 +320,21 @@ const DataSensors = () => {
                   '&.Mui-focused fieldset': {
                     border: 'none',
                   },
-                  '& .MuiInputBase-input': {
-                    padding: '10px',
-                    textAlign: 'center',
+                  '& .MuiSelect-select': {
+                    padding: '0 12px',
                   },
                 },
               }}
               value={pageSize}
               onChange={handlePageSize}
-              variant="outlined"
-              type="number"
-              // inputProps={{ min: 0 }}
-              // error={!!error}
-              // helperText={error}
-            />
+            >
+              <MenuItem value="5">5</MenuItem>
+              <MenuItem value="10">10</MenuItem>
+              <MenuItem value="15">15</MenuItem>
+              <MenuItem value="20">20</MenuItem>
+              <MenuItem value="25">25</MenuItem>
+              <MenuItem value="100">100</MenuItem>
+            </Select>
           </Box>
         </Box>
       </Box>

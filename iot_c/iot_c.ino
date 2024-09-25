@@ -9,11 +9,11 @@ const char* ssid = "Deadline";
 const char* password = "244466666";
 
 // Cài đặt MQTT broker
-const char* mqtt_server = "192.168.155.180";
+const char* mqtt_server = "192.168.2.180";
 const char* client_id = "esp8266_client";
 
 // Cấu hình chân kết nối
-#define DHT_PIN  D4   
+#define DHT_PIN  D4
 #define LED_PIN_1 D5    
 #define LED_PIN_2 D6   
 #define LED_PIN_3 D7   

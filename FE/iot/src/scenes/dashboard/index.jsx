@@ -7,9 +7,16 @@ import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFan } from '@fortawesome/free-solid-svg-icons';
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  useTheme,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { tokens } from '../../theme';
 
 import Header from '../../components/Header';
@@ -25,44 +32,53 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [devices, setDevices] = useState([]);
+  const [pageSize, setPageSize] = useState(20);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:8086/api/', {
+        params: {
+          pageSize,
+        },
+      });
+      setDataSensors(response.data);
+      setLoading(false);
+    } catch (error) {
+      setError(error);
+      setLoading(false);
+    }
+  }, [pageSize]);
+
+  const fetchDevices = async () => {
+    try {
+      const response = await axios.get('http://localhost:8086/api/alldevice');
+      setDevices(response.data);
+    } catch (error) {
+      setError(error);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8086/api/');
-        setDataSensors(response.data);
-        setLoading(false);
-      } catch (error) {
-        setError(error);
-        setLoading(false);
-      }
-    };
-    const fetchDevices = async () => {
-      try {
-        const response = await axios.get('http://localhost:8086/api/alldevice');
-        setDevices(response.data);
-      } catch (error) {
-        setError(error);
-      }
-    };
-
     fetchData();
     fetchDevices();
 
     const interval = setInterval(() => {
-      fetchData();
+      fetchData(pageSize);
     }, 2000);
 
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleString());
     }, 1000);
 
-    return () => clearInterval(interval, timer);
-  }, []);
+    return () => {
+      clearInterval(interval);
+      clearInterval(timer);
+    };
+  }, [fetchData]);
 
   const handleToggle = async (device) => {
     try {
-      alert('Sending...');
+      alert('Bạn có muốn bạt thiết bị không?');
       const response = await axios.get(`http://localhost:8086/api/led`, {
         params: {
           state: device.status === true ? 'true' : 'false',
@@ -81,6 +97,10 @@ const Dashboard = () => {
       console.error('Error toggling device status:', error);
     }
   };
+  const handlePageSize = (event) => {
+    const size = event.target.value;
+    setPageSize(size);
+  };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -89,7 +109,7 @@ const Dashboard = () => {
       id: 'temperature',
       data: dataSensors
         .map((sensor) => ({
-          x: sensor.time,
+          x: sensor.timeConvert,
           y: sensor.temperature,
         }))
         .reverse(),
@@ -98,7 +118,7 @@ const Dashboard = () => {
       id: 'humidity',
       data: dataSensors
         .map((sensor) => ({
-          x: sensor.time,
+          x: sensor.timeConvert,
           y: sensor.humidity,
         }))
         .reverse(),
@@ -107,7 +127,7 @@ const Dashboard = () => {
       id: 'light',
       data: dataSensors
         .map((sensor) => ({
-          x: sensor.time,
+          x: sensor.timeConvert,
           y: sensor.light,
         }))
         .reverse(),
@@ -125,27 +145,68 @@ const Dashboard = () => {
 
     if (type === 'humidity') {
       if (value > 70)
-        return 'linear-gradient(to left bottom, #d4b2d3, #e710e0)';
+        return 'linear-gradient(to left bottom, #2dfded, #49e2d6)';
       if (value > 40)
-        return 'linear-gradient(to left bottom, #b7b6dd, #d4b2d3)';
-      return 'linear-gradient(to left bottom, #94bbe9, #b7b6dd)';
+        return 'linear-gradient(to left bottom, #49e2d6, #6ebeb8)';
+      return 'linear-gradient(to left bottom, #6ebeb8, #2269c3)';
     }
 
     if (type === 'light') {
       if (value > 700)
-        return 'linear-gradient(to left bottom, #2dfded, #49e2d6)';
-
+        return 'linear-gradient(to left bottom, #fafe2e, #f9ff11)';
       if (value > 350)
-        return 'linear-gradient(to left bottom, #49e2d6, #6ebeb8)';
-      return 'linear-gradient(to left bottom, #6ebeb8, #2269c3)';
+        return 'linear-gradient(to left bottom, #f4f75c, #fafe2e)';
+      return 'linear-gradient(to left bottom, #edf1bb, #f4f75c)';
     }
   };
 
   return (
     <Box m="20px">
       {/* HEADER */}
+
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Control your device!" />
+        <Box
+          ml="2"
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+        >
+          <Typography>Page size:</Typography>
+          <Select
+            defaultValue="option1"
+            sx={{
+              ml: 2,
+              minWidth: 80,
+              height: 40,
+              backgroundColor: colors.primary[400],
+              borderRadius: '50px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  border: 'none',
+                },
+                '&:hover fieldset': {
+                  border: 'none',
+                },
+                '&.Mui-focused fieldset': {
+                  border: 'none',
+                },
+                '& .MuiSelect-select': {
+                  padding: '0 12px',
+                },
+              },
+            }}
+            value={pageSize}
+            onChange={handlePageSize}
+          >
+            <MenuItem value="5">5</MenuItem>
+            <MenuItem value="10">10</MenuItem>
+            <MenuItem value="15">15</MenuItem>
+            <MenuItem value="20">20</MenuItem>
+            <MenuItem value="25">25</MenuItem>
+            <MenuItem value="100">100</MenuItem>
+          </Select>
+        </Box>
       </Box>
 
       {/* GRID & CHARTS */}
@@ -252,7 +313,7 @@ const Dashboard = () => {
               </Typography>
             </Box>
           </Box>
-          <Box height="275px" m="-20px 0 0 0">
+          <Box height="275px" m="-20px 0 0 0" width="800px">
             <LineChart data={chartData} />
           </Box>
         </Box>
@@ -326,7 +387,7 @@ const Dashboard = () => {
               <Button
                 sx={{
                   backgroundColor:
-                    device.status === true
+                    device.status === false
                       ? colors.greenAccent[600]
                       : colors.redAccent[600],
                   padding: '5px 10px',
@@ -340,14 +401,14 @@ const Dashboard = () => {
                   color: 'white',
                   '&:hover': {
                     backgroundColor:
-                      device.status === true
+                      device.status === false
                         ? colors.greenAccent[500]
                         : colors.redAccent[500],
                   },
                 }}
                 onClick={() => handleToggle(device)}
               >
-                {device.status === false ? (
+                {device.status === true ? (
                   <>
                     <LockOutlinedIcon />
                     OFF
