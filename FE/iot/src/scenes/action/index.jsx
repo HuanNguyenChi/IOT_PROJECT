@@ -27,6 +27,7 @@ const Action = () => {
   const [error, setError] = useState('');
   const [sort, setSort] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [timeOn, setTimeOn] = useState(0);
 
   const fetchData = useCallback(
     async (page, pageSize, sort, searchTerm, field) => {
@@ -54,9 +55,21 @@ const Action = () => {
     },
     [page, pageSize, sort, searchTerm, field]
   );
+  const fetchCount = useCallback(async () => {
+    try {
+      const response = await axios.get(`http://localhost:8086/api/counttimeon`);
+      setTimeOn(response.data);
+      console.log(timeOn);
+    } catch (error) {
+      setError('');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchData(page, pageSize, sort, searchTerm, field);
+    fetchCount();
   }, [page, pageSize, sort, searchTerm, field]);
 
   const columns = [
@@ -248,9 +261,20 @@ const Action = () => {
           }}
           onClick={handleFilter}
         >
-          Filter
+          Search
         </Button>
       </Box>
+      <Typography
+        sx={{
+          ml: 2,
+          fontSize: '1rem',
+          color: 'text.primary',
+          mt: '12px',
+          fontWeight: 'bold',
+        }}
+      >
+        so lan bat quat: {timeOn}
+      </Typography>
       <Box
         m="40px 0 0 0"
         height="77vh"

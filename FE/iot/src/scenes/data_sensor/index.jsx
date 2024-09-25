@@ -24,6 +24,7 @@ const DataSensors = () => {
   const [pageSize, setPageSize] = useState(20);
   const [error, setError] = useState('');
   const [valueSearch, setValueSearch] = useState('');
+  const [timeOver70, setTimeOver70] = useState(0);
 
   const fetchData = useCallback(
     async (page, size, filterParams) => {
@@ -42,14 +43,24 @@ const DataSensors = () => {
           }
         );
         setData(response.data);
-        console.log(data);
+        // console.log(data);
       } catch (error) {}
     },
     [page, pageSize, selectedOption, order, valueSearch]
   );
+  const fetchTime = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:8086/api/countgreater70'
+      );
+      setTimeOver70(response.data);
+      console.log(response.data);
+    } catch (error) {}
+  }, []);
 
   useEffect(() => {
     fetchData(page, pageSize, {});
+    fetchTime();
   }, [page, pageSize, fetchData]);
 
   const columns = [
@@ -57,6 +68,14 @@ const DataSensors = () => {
     {
       field: 'temperature',
       headerName: 'Temperature',
+      type: 'number',
+      flex: 1,
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'windy',
+      headerName: 'Windy',
       type: 'number',
       flex: 1,
       headerAlign: 'center',
@@ -185,7 +204,7 @@ const DataSensors = () => {
 
         {/* Select dropdown */}
         <Select
-          defaultValue='null'
+          defaultValue="null"
           sx={{
             ml: 2,
             minWidth: 120,
@@ -211,7 +230,7 @@ const DataSensors = () => {
           onChange={handleChangeSelectField}
           variant="outlined"
         >
-          <MenuItem value='null'>All</MenuItem>
+          <MenuItem value="null">All</MenuItem>
           <MenuItem value="temperature">Temperature</MenuItem>
           <MenuItem value="humidity">Humidity</MenuItem>
           <MenuItem value="light">Light</MenuItem>
@@ -232,8 +251,19 @@ const DataSensors = () => {
           }}
           onClick={handleFilter}
         >
-          Filter
+          Search
         </Button>
+        <Typography
+          sx={{
+            ml: 2,
+            fontSize: '1rem',
+            color: 'text.primary',
+            mt: '12px',
+            fontWeight: 'bold',
+          }}
+        >
+          So lan gio lon hon 70: {timeOver70}
+        </Typography>
       </Box>
       <Box
         m="40px 0 0 0"

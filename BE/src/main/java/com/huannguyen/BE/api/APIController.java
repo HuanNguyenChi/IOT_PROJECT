@@ -4,10 +4,13 @@ import com.huannguyen.BE.constant.Constant;
 import com.huannguyen.BE.model.DataDevice;
 import com.huannguyen.BE.model.DataSensor;
 import com.huannguyen.BE.model.Device;
+import com.huannguyen.BE.repository.DataDeviceRepository;
+import com.huannguyen.BE.repository.DataSensorRepository;
 import com.huannguyen.BE.service.DataDeviceService;
 import com.huannguyen.BE.service.DataSensorService;
 import com.huannguyen.BE.service.DeviceService;
 import com.huannguyen.BE.service.MosquittoService;
+import com.huannguyen.BE.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,17 +42,46 @@ public class APIController {
     @Autowired
     private DeviceService deviceService;
 
+    @Autowired
+    private DataSensorRepository dataSensorRepository;
+
+    @Autowired
+    private DataDeviceRepository dataDeviceRepository;
+
 
     @GetMapping("")
     public ResponseEntity<List<DataSensor>> dashboard(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(value = "pageSize", defaultValue = "20") int size) {
+            @RequestParam(value = "pageSize", defaultValue = "20") int size) throws InterruptedException {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
         List<DataSensor> sortedDataSensors = dataSensorService.findDataSensorLimit(pageable)
                 .stream()
                 .sorted(Comparator.comparing(DataSensor::getTime).reversed())
                 .collect(Collectors.toList());
+//        for(DataSensor dataSensor : sortedDataSensors){
+//            System.out.println(dataSensor.toString());
+//        }
         return ResponseEntity.ok(sortedDataSensors);
+    }
+
+    @GetMapping("/countgreater70")
+    public ResponseEntity<Long> countgreater70() throws InterruptedException {
+        String time = Time.getTimeLocalConvert();
+        time = time.split(" ")[0];
+//        System.out.println(time);
+        Long ans = dataSensorRepository.countWindyGreaterThan70(time);
+//        System.out.println(ans);
+        return ResponseEntity.ok(ans);
+
+    }
+    @GetMapping("/counttimeon")
+    public ResponseEntity<Long> counttimeon() throws InterruptedException {
+        String time = Time.getTimeLocalConvert();
+        time = time.split(" ")[0];
+//        System.out.println(time);
+       long ans = dataDeviceRepository.countTrueStatusForId2Today(time);
+//        System.out.println(ans);
+        return ResponseEntity.ok(ans);
     }
 
     @GetMapping("led")
@@ -69,7 +101,7 @@ public class APIController {
             default:
                 break;
         }
-        String mes = state.equals("true") ? "0" : "1";
+        String mes = state.equals("true") ? "1" : "0";
 
         mosquittoService.publishMessage(topic, mes);
 
@@ -101,7 +133,13 @@ public class APIController {
             @RequestParam(value = "search", required = false) String search) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
-        if (field.equals("null")) field = null;
+        if (field.equals("null")){
+            List<DataSensor> ans = dataSensorRepository.findByValueInAllFields(search,pageable);
+//            for(DataSensor dataSensor: ans){
+//                System.out.println(dataSensor.toString());
+//            }
+            return ResponseEntity.ok(ans);
+        }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (search == null || search.isEmpty()) {
             if(field == null ){

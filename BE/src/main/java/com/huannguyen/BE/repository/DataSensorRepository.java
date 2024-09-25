@@ -24,8 +24,21 @@ public interface DataSensorRepository extends JpaRepository<DataSensor, Integer>
             "(:field = 'temperature' AND STR(d.temperature) LIKE CONCAT('%', :value, '%')) OR " +
             "(:field = 'humidity' AND STR(d.humidity) LIKE CONCAT('%', :value, '%')) OR " +
             "(:field = 'light' AND STR(d.light) LIKE CONCAT('%', :value, '%')) OR " +
-            "(:field = 'time' AND STR(d.timeConvert) LIKE CONCAT('%', :value, '%'))")
+            "(:field = 'time' AND STR(d.timeConvert) LIKE CONCAT('%', :value, '%')) OR " +
+            "(:field = 'windy' AND STR(d.windy) LIKE CONCAT('%', :value, '%')) ")
     List<DataSensor> findByField(@Param("field") String field, @Param("value") String value,Pageable pageable);
+
+    @Query("SELECT COUNT(d) FROM DataSensor d WHERE d.windy >= 70 AND d.timeConvert LIKE CONCAT(:time, '%')")
+    long countWindyGreaterThan70(@Param("time") String time);
+
+    @Query("SELECT d FROM DataSensor d WHERE " +
+            "STR(d.temperature) LIKE CONCAT('%', :value, '%') and " +
+            "STR(d.humidity) LIKE CONCAT('%', :value, '%') and " +
+            "STR(d.light) LIKE CONCAT('%', :value, '%') and " +
+            "STR(d.timeConvert) LIKE CONCAT('%', :value, '%') and " +
+            "STR(d.windy) LIKE CONCAT('%', :value, '%')")
+    List<DataSensor> findByValueInAllFields(@Param("value") String value, Pageable pageable);
+
 
     List<DataSensor> findDataSensorByTimeBetweenOrderByTemperature(String start, String end, Pageable pageable);
     List<DataSensor> findDataSensorByTimeBetweenOrderByHumidity(String start, String end, Pageable pageable);

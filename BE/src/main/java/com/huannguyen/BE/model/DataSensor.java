@@ -28,6 +28,9 @@ public class DataSensor {
     @Column(name = "LIGHT")
     private Double light;
 
+    @Column(name = "WINDY")
+    private Integer windy;
+
     @Column(name = "TIME")
     private Date time;
 

@@ -16,12 +16,14 @@ import {
   MenuItem,
 } from '@mui/material';
 import axios from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { tokens } from '../../theme';
 
 import Header from '../../components/Header';
 import LineChart from '../../components/LineChart';
 import StatBox from '../../components/StatBox';
+// import Windy from '../../components/Windy.jsx';
+import Add from '../../components/Add.jsx';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 
 const Dashboard = () => {
@@ -34,41 +36,86 @@ const Dashboard = () => {
   const [devices, setDevices] = useState([]);
   const [pageSize, setPageSize] = useState(20);
 
+  const sensorRef = useRef();
+  const deviceRef = useRef();
+
+  const checkWindy = useCallback(() => {
+    console.log('checkWindy is called');
+    if (
+      deviceRef.current &&
+      sensorRef.current &&
+      sensorRef.current.length > 0
+    ) {
+      console.log(deviceRef.current[1].status);
+      console.log(sensorRef.current[0].windy);
+      if (deviceRef.current[1].status && sensorRef.current[0].windy > 80) {
+        handleControlFan(false);
+      } else if (
+        !deviceRef.current[1].status &&
+        sensorRef.current[0].windy < 30
+      ) {
+        handleControlFan(true);
+      }
+    } else {
+      console.error('Device or sensor data is not available.');
+    }
+  }, [deviceRef.current, sensorRef.current]);
+
+  const fetchDevices = async () => {
+    try {
+      const response = await axios.get('http://localhost:8086/api/alldevice');
+      setDevices(response.data);
+      deviceRef.current = response.data;
+    } catch (error) {
+      setError(error);
+    }
+  };
+
   const fetchData = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:8086/api/', {
-        params: {
-          pageSize,
-        },
+        params: { pageSize },
       });
       setDataSensors(response.data);
+      sensorRef.current = response.data;
       setLoading(false);
+      await fetchDevices();
+
+      // console.log(sensorRef);
+      // console.log(deviceRef);
+      checkWindy();
     } catch (error) {
       setError(error);
       setLoading(false);
     }
   }, [pageSize]);
 
-  const fetchDevices = async () => {
+  const handleControlFan = async (turnOn) => {
+    {
+      turnOn ? alert('Ban co muon bat quat') : alert('Ban co muon tat quat');
+    }
     try {
-      const response = await axios.get('http://localhost:8086/api/alldevice');
-      setDevices(response.data);
+      const response = await axios.get(`http://localhost:8086/api/led`, {
+        params: {
+          state: turnOn,
+          id: '2',
+        },
+      });
+      setDevices((prevDevices) =>
+        prevDevices.map((d) => (d.id === '2' ? { ...d, status: turnOn } : d))
+      );
     } catch (error) {
-      setError(error);
+      console.error('Error toggling device status:', error);
     }
   };
-
   useEffect(() => {
     fetchData();
-    fetchDevices();
 
-    const interval = setInterval(() => {
-      fetchData(pageSize);
-    }, 2000);
-
-    const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleString());
-    }, 1000);
+    const interval = setInterval(fetchData, 2000);
+    const timer = setInterval(
+      () => setCurrentTime(new Date().toLocaleString()),
+      1000
+    );
 
     return () => {
       clearInterval(interval);
@@ -79,13 +126,15 @@ const Dashboard = () => {
   const handleToggle = async (device) => {
     try {
       alert('Bạn có muốn bạt thiết bị không?');
+
       const response = await axios.get(`http://localhost:8086/api/led`, {
         params: {
-          state: device.status === true ? 'true' : 'false',
+          state: device.status === true ? 'false' : 'true',
           id: device.id,
         },
       });
       const dataDevice = response.data;
+
       setDevices((prevDevices) =>
         prevDevices.map((d) =>
           d.id === dataDevice.device.id
@@ -103,7 +152,17 @@ const Dashboard = () => {
   };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
+  const chartWindy = [
+    {
+      id: 'windy',
+      data: dataSensors
+        .map((sensor) => ({
+          x: sensor.timeConvert,
+          y: sensor.windy,
+        }))
+        .reverse(),
+    },
+  ];
   const chartData = [
     {
       id: 'temperature',
@@ -152,6 +211,13 @@ const Dashboard = () => {
     }
 
     if (type === 'light') {
+      if (value > 700)
+        return 'linear-gradient(to left bottom, #fafe2e, #f9ff11)';
+      if (value > 350)
+        return 'linear-gradient(to left bottom, #f4f75c, #fafe2e)';
+      return 'linear-gradient(to left bottom, #edf1bb, #f4f75c)';
+    }
+    if (type === 'windy') {
       if (value > 700)
         return 'linear-gradient(to left bottom, #fafe2e, #f9ff11)';
       if (value > 350)
@@ -220,7 +286,7 @@ const Dashboard = () => {
 
         {/* STAT BOX TEMPERATURE */}
         <Box
-          gridColumn="span 4"
+          gridColumn="span 3"
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -244,7 +310,7 @@ const Dashboard = () => {
 
         {/* STAT BOX HUMIDITY */}
         <Box
-          gridColumn="span 4"
+          gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
@@ -267,7 +333,7 @@ const Dashboard = () => {
 
         {/* STAT BOX LIGHT */}
         <Box
-          gridColumn="span 4"
+          gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
@@ -282,10 +348,27 @@ const Dashboard = () => {
             icon={<LightModeIcon sx={{ color: 'white', fontSize: '26px' }} />}
           />
         </Box>
+        {/* STAT BOX WWINDY */}
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          sx={{
+            backgroundImage: getBackgroundColor(dataSensors[0].windy, 'windy'),
+          }}
+        >
+          <StatBox
+            title={dataSensors[0].windy + ''}
+            subtitle="Windy"
+            icon={<LightModeIcon sx={{ color: 'white', fontSize: '26px' }} />}
+          />
+        </Box>
 
         {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
+          gridColumn="span 4"
           height="330px"
           backgroundColor={colors.primary[400]}
         >
@@ -313,7 +396,40 @@ const Dashboard = () => {
               </Typography>
             </Box>
           </Box>
-          <Box height="275px" m="-20px 0 0 0" width="800px">
+          <Box height="275px" m="-20px 0 0 0" width="400px">
+            <Add data={chartWindy} />
+          </Box>
+        </Box>
+        <Box
+          gridColumn="span 4"
+          height="330px"
+          backgroundColor={colors.primary[400]}
+        >
+          <Box
+            mt="25px"
+            p="0 30px"
+            display="flex "
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Box>
+              <Typography
+                variant="h5"
+                fontWeight="600"
+                color={colors.grey[100]}
+              >
+                Today
+              </Typography>
+              <Typography
+                variant="h3"
+                fontWeight="bold"
+                color={colors.greenAccent[500]}
+              >
+                {currentTime}
+              </Typography>
+            </Box>
+          </Box>
+          <Box height="275px" m="-20px 0 0 0" width="400px">
             <LineChart data={chartData} />
           </Box>
         </Box>

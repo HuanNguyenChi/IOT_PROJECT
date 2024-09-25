@@ -11,6 +11,7 @@ import com.huannguyen.BE.util.Time;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Random;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -74,7 +75,7 @@ public class MosquittoService {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     handleIncomingMessage(topic,message);
-                    System.out.println("Message arrived. Topic: " + topic + ", Message: " + new String(message.getPayload()));
+                    System.out.println("Message arrived. Topic: " + topic + ", Message: " + new String(message.getPayload()) );
                 }
 
                 @Override
@@ -107,6 +108,9 @@ public class MosquittoService {
             sensorData.setHumidity(arrayData[1]);
             sensorData.setLight(1024 - arrayData[2]);
             sensorData.setTime((Time.getTimeLocal()));
+            Random random = new Random();
+            int windyRandom = random.nextInt(101);
+            sensorData.setWindy(windyRandom);
             sensorData.setTimeConvert((Time.getTimeLocalConvert()));
             dataSensorRepository.save(sensorData);
 

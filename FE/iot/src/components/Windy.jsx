@@ -22,7 +22,7 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = ({ data }) => {
+const Windy = ({ data }) => {
   const theme = useTheme();
   const colorsMode = tokens(theme.palette.mode);
 
@@ -35,40 +35,18 @@ const LineChart = ({ data }) => {
   };
 
   const labels = data[0].data.map((item) => formatTime(item.x));
-  const temperatureData = data[0].data.map((item) => item.y);
-  const humidityData = data[1].data.map((item) => item.y);
-  const lightData = data[2].data.map((item) => item.y);
+  const windyData = data[0].data.map((item) => item.y);
 
   const chartData = {
     labels: labels,
     datasets: [
       {
-        label: 'Temperature',
-        data: temperatureData,
+        label: 'windy',
+        data: windyData,
         borderColor: '#e41a1c',
         backgroundColor: 'rgba(228, 26, 28, 0.2)',
         fill: true,
         yAxisID: 'y',
-        pointRadius: 1,
-        tension: 0.5,
-      },
-      {
-        label: 'Humidity',
-        data: humidityData,
-        borderColor: '#377eb8',
-        backgroundColor: 'rgba(55, 126, 184, 0.2)',
-        fill: true,
-        yAxisID: 'y',
-        tension: 0.5,
-        pointRadius: 1,
-      },
-      {
-        label: 'Light',
-        data: lightData,
-        borderColor: '#4daf4a',
-        backgroundColor: 'rgba(77, 175, 74, 0.2)',
-        fill: true,
-        yAxisID: 'y2',
         pointRadius: 1,
         tension: 0.5,
       },
@@ -98,22 +76,10 @@ const LineChart = ({ data }) => {
       y: {
         title: {
           display: true,
-          text: 'Temperature/Humidity',
+          text: 'Windy',
         },
         min: 0,
         max: 100,
-        grid: {
-          drawOnChartArea: false,
-        },
-      },
-      y2: {
-        title: {
-          display: true,
-          text: 'Light',
-        },
-        min: 0,
-        max: 1200,
-        position: 'right',
         grid: {
           drawOnChartArea: false,
         },
@@ -140,4 +106,4 @@ const LineChart = ({ data }) => {
   );
 };
 
-export default LineChart;
+export default Windy;
