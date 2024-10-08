@@ -108,9 +108,7 @@ public class MosquittoService {
             sensorData.setHumidity(arrayData[1]);
             sensorData.setLight(1024 - arrayData[2]);
             sensorData.setTime((Time.getTimeLocal()));
-            Random random = new Random();
-            int windyRandom = random.nextInt(101);
-            sensorData.setWindy(windyRandom);
+            sensorData.setWindy(arrayData[3]);
             sensorData.setTimeConvert((Time.getTimeLocalConvert()));
             dataSensorRepository.save(sensorData);
 

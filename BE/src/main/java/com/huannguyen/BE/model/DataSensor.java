@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -29,7 +28,7 @@ public class DataSensor {
     private Double light;
 
     @Column(name = "WINDY")
-    private Integer windy;
+    private Double windy;
 
     @Column(name = "TIME")
     private Date time;

@@ -273,7 +273,7 @@ const Action = () => {
           fontWeight: 'bold',
         }}
       >
-        so lan bat quat: {timeOn}
+        so lan bat quat trong ngay: {timeOn}
       </Typography>
       <Box
         m="40px 0 0 0"

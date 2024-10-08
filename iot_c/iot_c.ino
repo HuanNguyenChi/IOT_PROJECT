@@ -3,13 +3,14 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <DHT.h>
+#include <cstdlib>
 
 //Thông tin WiFi
 const char* ssid = "Deadline";
 const char* password = "244466666";
 
 // Cài đặt MQTT broker
-const char* mqtt_server = "192.168.2.180";
+const char* mqtt_server = "192.168.60.180";
 const char* client_id = "esp8266_client";
 
 // Cấu hình chân kết nối
@@ -103,19 +104,19 @@ void loop() {
   float temperature = dht.readTemperature();
   float humidity = dht.readHumidity();
   float light = analogRead(LIGHT_SENSOR_PIN);  
-
-  String data = String(temperature) + " " + String(humidity) + " " + String(light) ;
+  int rand = random(1, 101); 
+  String data = String(temperature) + " " + String(humidity) + " " + String(light) + " " + String(rand);
 
   if (!isnan(temperature) && !isnan(humidity) && !isnan(light)) {
     client.publish("SENSOR/DATA", String(data).c_str());
   }
 
-  Serial.print("Temperature: ");
-  Serial.print(temperature);
-  Serial.print(" Humidity: ");
-  Serial.print(humidity);
-  Serial.print(" Light: ");
-  Serial.println(light);
-
+  // Serial.print("Temperature: ");
+  // Serial.print(temperature);
+  // Serial.print(" Humidity: ");
+  // Serial.print(humidity);
+  // Serial.print(" Light: ");
+  // Serial.print(light );
+  Serial.println(data);
   delay(2000);
 }

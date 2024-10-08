@@ -41,6 +41,7 @@ const Dashboard = () => {
 
   const checkWindy = useCallback(() => {
     console.log('checkWindy is called');
+    console.log(deviceRef);
     if (
       deviceRef.current &&
       sensorRef.current &&
@@ -211,18 +212,20 @@ const Dashboard = () => {
     }
 
     if (type === 'light') {
-      if (value > 700)
-        return 'linear-gradient(to left bottom, #fafe2e, #f9ff11)';
-      if (value > 350)
-        return 'linear-gradient(to left bottom, #f4f75c, #fafe2e)';
-      return 'linear-gradient(to left bottom, #edf1bb, #f4f75c)';
+      if (value > 500)
+        return 'linear-gradient(to left bottom, #f9ff11, #f7f7f1)';
+      if (value > 200)
+        return 'linear-gradient(to left bottom, #b6bd0d, #f9ff11)';
+      if (value > 100)
+        return 'linear-gradient(to left bottom, #6a7308, #b6bd0d)';
+      return 'linear-gradient(to left bottom, #494e08, #6a7308)';
     }
     if (type === 'windy') {
-      if (value > 700)
-        return 'linear-gradient(to left bottom, #fafe2e, #f9ff11)';
-      if (value > 350)
-        return 'linear-gradient(to left bottom, #f4f75c, #fafe2e)';
-      return 'linear-gradient(to left bottom, #edf1bb, #f4f75c)';
+      if (value > 70)
+        return 'linear-gradient(to left bottom, #14f714, #038218)';
+      if (value > 30)
+        return 'linear-gradient(to left bottom, #65ed5b, #14f714)';
+      return 'linear-gradient(to left bottom, #bcf4ba, #65ed5b)';
     }
   };
 

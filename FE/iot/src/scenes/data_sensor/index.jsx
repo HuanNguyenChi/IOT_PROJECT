@@ -262,7 +262,7 @@ const DataSensors = () => {
             fontWeight: 'bold',
           }}
         >
-          So lan gio lon hon 70: {timeOver70}
+          So lan gio lon hon 70 trong ngay: {timeOver70}
         </Typography>
       </Box>
       <Box
